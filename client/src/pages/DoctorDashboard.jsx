@@ -8,18 +8,14 @@ import { Users, Activity, LogOut, Search, User, AlertTriangle, ChevronLeft, Chev
 import { toast } from 'react-hot-toast';
 import DashboardSidebar from '../components/DashboardSidebar';
 import NotificationBell from '../components/NotificationBell';
-
 const socket = io(import.meta.env.VITE_API_URL);
-
 function DoctorDashboard() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
-
     const [patients, setPatients] = useState([]);
     const [filterText, setFilterText] = useState('');
     const [reportCount, setReportCount] = useState(0);
-
     useEffect(() => {
         if (!user || user.role !== 'doctor') {
             navigate('/login');
@@ -27,30 +23,23 @@ function DoctorDashboard() {
         }
         fetchPatients();
         fetchReportCount();
-
-
         socket.emit('user_connected', user._id || user.id);
-
         socket.on('healthUpdate', (data) => {
             const incomingPatientId =
                 data?.patientId ||
                 data?.patient?._id ||
                 data?.patient;
-
             if (!incomingPatientId) return;
-
             setPatients(prevPatients => prevPatients.map(p => {
                 if (p._id?.toString() === incomingPatientId?.toString()) {
                     const nextLastVitals = {
-                        ...(p.lastVitals || {}),
+                        ...(p.lastVitals || ),
                         status: data.status,
                         lastCheck: new Date(),
                     };
-
                     if (data.type === 'Heart Rate') {
                         nextLastVitals.heartRate = data.value;
                     }
-
                     if (data.type === 'Blood Pressure') {
                         const parts = (data.value || '').toString().split('/');
                         if (parts.length === 2) {
@@ -58,15 +47,12 @@ function DoctorDashboard() {
                             nextLastVitals.bpDiastolic = parts[1];
                         }
                     }
-
                     if (data.type === 'SpO2') {
                         nextLastVitals.spo2 = data.value;
                     }
-
                     if (data.type === 'Temperature') {
                         nextLastVitals.temperature = data.value;
                     }
-
                     return {
                         ...p,
                         lastVitals: nextLastVitals
@@ -75,7 +61,6 @@ function DoctorDashboard() {
                 return p;
             }));
         });
-
         socket.on('user_status_update', (data) => {
             setPatients(prevPatients => prevPatients.map(p => {
                 if (p._id === data.userId) {
@@ -84,19 +69,16 @@ function DoctorDashboard() {
                 return p;
             }));
         });
-
         socket.on('newReport', (data) => {
             setReportCount(prev => prev + 1);
             toast.success(`New report shared: ${data.originalName}`);
         });
-
         return () => {
             socket.off('healthUpdate');
             socket.off('user_status_update');
             socket.off('newReport');
         };
     }, [user, navigate]);
-
     const fetchPatients = async () => {
         try {
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/patients`, { withCredentials: true });
@@ -106,7 +88,6 @@ function DoctorDashboard() {
             toast.error("Failed to load patients");
         }
     };
-
     const fetchReportCount = async () => {
         try {
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/reports/count`, { withCredentials: true });
@@ -115,12 +96,10 @@ function DoctorDashboard() {
             console.error("Failed to fetch report count", err);
         }
     };
-
     const handleLogout = () => {
         dispatch(logout());
         navigate('/');
     };
-
     const filteredPatients = (patients || []).filter(p => {
         const search = filterText.toLowerCase();
         return (
@@ -130,7 +109,6 @@ function DoctorDashboard() {
             (p.gender && p.gender.toLowerCase().includes(search))
         );
     });
-
     const HighlightText = ({ text = '', highlight = '' }) => {
         if (!highlight.trim() || !text) return <span>{text || ''}</span>;
         const regex = new RegExp(`(${highlight})`, 'gi');
@@ -143,12 +121,9 @@ function DoctorDashboard() {
             </span>
         );
     };
-
     return (
         <div className="min-h-screen flex font-sans">
             <DashboardSidebar role="doctor" />
-
-            { }
             <div className="flex-1 p-8 w-full ml-20 transition-all duration-300">
                 <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
@@ -169,8 +144,6 @@ function DoctorDashboard() {
                         </div>
                     </div>
                 </header>
-
-                { }
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between mb-4">
@@ -215,8 +188,6 @@ function DoctorDashboard() {
                         <p className="text-3xl font-bold text-gray-900 mt-1">{reportCount}</p>
                     </div>
                 </div>
-
-                { }
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                         <h2 className="text-lg font-bold text-gray-800">Recent Patients</h2>
@@ -312,5 +283,4 @@ function DoctorDashboard() {
         </div >
     );
 }
-
 export default DoctorDashboard;

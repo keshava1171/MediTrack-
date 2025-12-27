@@ -7,37 +7,31 @@ import { toast } from 'react-hot-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import DashboardSidebar from '../components/DashboardSidebar';
 import NotificationBell from '../components/NotificationBell';
-
 function HealthDashboard() {
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
     const [readings, setReadings] = useState([]);
-    const [latest, setLatest] = useState({});
+    const [latest, setLatest] = useState();
     const [loading, setLoading] = useState(true);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-
     const [chartMetric, setChartMetric] = useState('Heart Rate');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
-
     useEffect(() => {
         if (!user) {
             navigate('/login');
             return;
         }
-
         if (user.role === 'admin') {
             navigate('/admin/dashboard');
             return;
         }
-
         if (user.role === 'doctor') {
             navigate('/doctor-dashboard');
             return;
         }
         fetchHealthData();
     }, [user, navigate]);
-
     const fetchHealthData = async () => {
         try {
             const [historyRes, latestRes] = await Promise.all([
@@ -45,9 +39,7 @@ function HealthDashboard() {
                 axios.get(`${import.meta.env.VITE_API_URL}/api/health/latest`, { withCredentials: true })
             ]);
             setReadings(historyRes.data);
-
-            let latestObj = {};
-
+            let latestObj = ;
             if (latestRes.data.length === 0 && historyRes.data.length > 0) {
                 historyRes.data.forEach(item => {
                     if (!latestObj[item.type] || new Date(item.timestamp) > new Date(latestObj[item.type].timestamp)) {
@@ -59,7 +51,6 @@ function HealthDashboard() {
                     latestObj[item.type] = item;
                 });
             }
-
             setLatest(latestObj);
             setLoading(false);
         } catch (err) {
@@ -68,7 +59,6 @@ function HealthDashboard() {
             setLoading(false);
         }
     };
-
     const getIcon = (type) => {
         switch (type) {
             case 'Heart Rate': return <Heart className="text-red-500" />;
@@ -78,13 +68,11 @@ function HealthDashboard() {
             default: return <Activity className="text-gray-500" />;
         }
     };
-
     const getStatusColor = (status) => {
         if (status === 'Critical') return 'bg-red-100 text-red-700 border-red-200';
         if (status === 'Abnormal') return 'bg-orange-100 text-orange-700 border-orange-200';
         return 'bg-green-100 text-green-700 border-green-200';
     };
-
     const addSimulatedReading = async (type) => {
         let value, unit;
         if (type === 'Heart Rate') { value = Math.floor(Math.random() * (110 - 60) + 60).toString(); unit = 'bpm'; }
@@ -97,7 +85,6 @@ function HealthDashboard() {
             value = `${sys}/${dia}`;
             unit = 'mmHg';
         }
-
         try {
             await axios.post(`${import.meta.env.VITE_API_URL}/api/health`, {
                 type, value, unit, notes: 'Manual Entry'
@@ -108,7 +95,6 @@ function HealthDashboard() {
             toast.error('Failed to add reading');
         }
     };
-
     const chartData = readings
         .filter(r => r.type === chartMetric)
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
@@ -117,22 +103,17 @@ function HealthDashboard() {
             value: parseFloat(r.value),
             status: r.status
         }));
-
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentReadings = readings.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(readings.length / itemsPerPage);
-
     const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
     const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
-
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans">
             <DashboardSidebar role="patient" onHoverChange={setIsSidebarExpanded} />
-
             <div className={`flex-1 pb-12 p-4 sm:p-8 transition-all duration-300 ${isSidebarExpanded ? 'ml-64' : 'ml-20'}`}>
                 <div className="max-w-7xl mx-auto">
-                    { }
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-gray-800">My Health</h1>
@@ -155,9 +136,7 @@ function HealthDashboard() {
                             </p>
                         </div>
                         <div className="flex gap-3 items-center">
-                            { }
                             <NotificationBell />
-
                             <button onClick={() => navigate('/find-doctor')} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg shadow-md hover:bg-purple-700 font-medium transition">
                                 <User size={18} /> Find Doctor
                             </button>
@@ -169,8 +148,6 @@ function HealthDashboard() {
                             </button>
                         </div>
                     </div>
-
-                    { }
                     <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
                         <div className="flex items-center gap-4">
                             <Wifi className="text-green-600" size={24} />
@@ -180,9 +157,6 @@ function HealthDashboard() {
                             </div>
                         </div>
                     </div>
-
-                    { }
-                    { }
                     {readings.length > 0 && ['Critical', 'Abnormal'].includes(readings[0].status) && (
                         <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between">
                             <div className="flex gap-4">
@@ -205,19 +179,15 @@ function HealthDashboard() {
                             </div>
                         </div>
                     )}
-
-                    { }
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         {['Heart Rate', 'Blood Pressure', 'Temperature', 'SpO2', 'Glucose'].map((type) => {
                             const reading = latest[type];
-
                             let safeRange = '';
                             if (type === 'Heart Rate') safeRange = '60-100 bpm';
                             else if (type === 'Blood Pressure') safeRange = '90/60 - 120/80';
                             else if (type === 'Temperature') safeRange = '36.5 - 37.5 °C';
                             else if (type === 'SpO2') safeRange = '95 - 100 %';
                             else if (type === 'Glucose') safeRange = '70 - 140 mg/dL';
-
                             return (
                                 <div key={type} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 relative overflow-hidden group">
                                     <div className="flex justify-between items-start mb-4">
@@ -257,8 +227,6 @@ function HealthDashboard() {
                             );
                         })}
                     </div>
-
-                    { }
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
                         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                             <h2 className="text-lg font-bold text-gray-800">Health Trends (Pictorial View)</h2>
@@ -324,8 +292,6 @@ function HealthDashboard() {
                             )}
                         </div>
                     </div>
-
-                    { }
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                             <h2 className="text-lg font-bold text-gray-800">Complete History</h2>
@@ -378,7 +344,6 @@ function HealthDashboard() {
                                 </tbody>
                             </table>
                         </div>
-                        { }
                         {readings.length > itemsPerPage && (
                             <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50">
                                 <p className="text-sm text-gray-500">
@@ -403,34 +368,29 @@ function HealthDashboard() {
                             </div>
                         )}
                     </div>
-                    { }
                     <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                         <div className="p-6 border-b border-gray-100">
                             <h2 className="text-lg font-bold text-gray-800">Alert History</h2>
                         </div>
                         <div className="p-6">
-                            <MyAlerts key={readings.length} /> { }
+                            <MyAlerts key={readings.length} /> 
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     );
 }
-
 const MyAlerts = () => {
     const [alerts, setAlerts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
-
     useEffect(() => {
         const fetchAlerts = async () => {
             setLoading(true);
             setError(null);
-
             try {
                 console.log('Fetching all alerts...');
                 const res = await axios.get(
@@ -460,30 +420,23 @@ const MyAlerts = () => {
                 setLoading(false);
             }
         };
-
         fetchAlerts();
     }, []);
-
     if (loading) {
         return <div className="text-center py-4">Loading alerts...</div>;
     }
-
     if (error) {
         return <div className="text-red-600 text-center py-4">{error}</div>;
     }
-
     if (alerts.length === 0) {
         return <p className="text-gray-500 italic text-center py-4">No alerts found. Your health is in good standing!</p>;
     }
-
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentAlerts = alerts.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(alerts.length / itemsPerPage);
-
     const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
     const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
-
     return (
         <div>
             <ul className="divide-y divide-gray-100 mb-4">
@@ -500,8 +453,6 @@ const MyAlerts = () => {
                     </li>
                 ))}
             </ul>
-
-            { }
             {alerts.length > itemsPerPage && (
                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                     <p className="text-xs text-gray-500">
@@ -528,5 +479,4 @@ const MyAlerts = () => {
         </div>
     );
 };
-
 export default HealthDashboard;

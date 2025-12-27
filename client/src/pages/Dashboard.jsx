@@ -5,24 +5,18 @@ import { logout, reset } from '../features/auth/authSlice';
 import io from 'socket.io-client';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Activity, Heart, Wind, AlertTriangle, FileText, MessageSquare, Shield } from 'lucide-react';
-
 const socket = io('http://localhost:5000');
-
 function Dashboard() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
     const { user } = useSelector((state) => state.auth);
-
     const [healthData, setHealthData] = useState(null);
     const [history, setHistory] = useState([]);
     const [alerts, setAlerts] = useState([]);
-
     useEffect(() => {
         if (!user) {
             navigate('/login');
         }
-
         socket.on('healthUpdate', (data) => {
             if (data.patient === user._id || data.patient === user.id) {
                 setHealthData(data);
@@ -32,30 +26,25 @@ function Dashboard() {
                 });
             }
         });
-
         socket.on('healthAlert', (alert) => {
             setAlerts((prev) => [alert, ...prev].slice(0, 5));
         });
-
         return () => {
             socket.off('healthUpdate');
             socket.off('healthAlert');
         };
     }, [user, navigate]);
-
     const onLogout = () => {
         dispatch(logout());
         dispatch(reset());
         navigate('/');
     };
-
     return (
         <div className="p-4 sm:p-8 max-w-7xl mx-auto">
-            { }
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">{user?.role === 'admin' ? 'System Overview' : 'Health Dashboard'}</h1>
-                    <p className="text-gray-500">Welcome back, {user && user.name.split(' ')[0]} { }</p>
+                    <p className="text-gray-500">Welcome back, {user && user.name.split(' ')[0]} </p>
                 </div>
                 <div className="flex gap-3">
                     <Link to="/profile" className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition shadow-sm font-medium">
@@ -66,11 +55,8 @@ function Dashboard() {
                     </button>
                 </div>
             </div>
-
-            { }
             {user?.role === 'admin' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    { }
                     <Link to="/admin/reports?tab=Reports" className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group">
                         <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-600 group-hover:text-white transition">
                             <FileText size={24} />
@@ -78,8 +64,6 @@ function Dashboard() {
                         <h3 className="text-xl font-bold text-gray-900 mb-2">Medical Reports</h3>
                         <p className="text-gray-500 text-sm">Access and manage all uploaded medical documents.</p>
                     </Link>
-
-                    { }
                     <Link to="/chat" className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group">
                         <div className="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-600 group-hover:text-white transition">
                             <MessageSquare size={24} />
@@ -87,18 +71,14 @@ function Dashboard() {
                         <h3 className="text-xl font-bold text-gray-900 mb-2">Messages</h3>
                         <p className="text-gray-500 text-sm">Chat with doctors and healthcare providers.</p>
                     </Link>
-
-                    { }
                     <Link to="/profile" className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group">
                         <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition">
-                            <span className="font-bold text-lg"><Heart size={24} /></span> { }
+                            <span className="font-bold text-lg"><Heart size={24} /></span> 
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">My Profile</h3>
                         <p className="text-gray-500 text-sm">Update your personal details, address, and photo.</p>
                     </Link>
-
-                    { }
-                    <Link to="/admin/dashboard" className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group lg:col-span-3"> { }
+                    <Link to="/admin/dashboard" className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group lg:col-span-3"> 
                         <div className="flex items-start justify-between">
                             <div>
                                 <div className="w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-red-600 group-hover:text-white transition">
@@ -113,9 +93,7 @@ function Dashboard() {
                 </div>
             ) : (
                 <>
-                    { }
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                        { }
                         <button onClick={() => navigate('/chat')} className="flex items-center justify-center p-4 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700 transition transform hover:-translate-y-1">
                             <MessageSquare className="mr-2" /> Live Chat
                         </button>
@@ -129,11 +107,8 @@ function Dashboard() {
                             <span className="font-semibold">{user?.bloodGroup || 'Blood Group: N/A'}</span>
                         </div>
                     </div>
-
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        { }
                         <div className="lg:col-span-2 space-y-8">
-                            { }
                             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <div className="flex justify-between items-center mb-6">
                                     <h2 className="text-lg font-bold flex items-center text-gray-800"><Heart className="w-5 h-5 mr-2 text-rose-500" /> Heart Rate History</h2>
@@ -159,10 +134,7 @@ function Dashboard() {
                                     </ResponsiveContainer>
                                 </div>
                             </div>
-
-                            { }
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                { }
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-lg font-bold flex items-center text-gray-800"><Wind className="w-5 h-5 mr-2 text-sky-500" /> SpO2 Levels</h2>
@@ -181,8 +153,6 @@ function Dashboard() {
                                         </ResponsiveContainer>
                                     </div>
                                 </div>
-
-                                { }
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
                                     <div>
                                         <h2 className="text-lg font-bold flex items-center text-gray-800 mb-1"><Activity className="w-5 h-5 mr-2 text-indigo-500" /> Blood Pressure</h2>
@@ -208,8 +178,6 @@ function Dashboard() {
                                 </div>
                             </div>
                         </div>
-
-                        { }
                         <div className="space-y-8">
                             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-full">
                                 <h2 className="text-lg font-bold mb-4 text-gray-800 flex items-center">
@@ -247,5 +215,4 @@ function Dashboard() {
         </div>
     );
 }
-
 export default Dashboard;

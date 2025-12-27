@@ -5,21 +5,17 @@ import axios from 'axios';
 import { ArrowLeft, Activity, AlertCircle, FileText, MessageSquare, Heart, Thermometer, Droplet, ChevronLeft, ChevronRight } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import io from 'socket.io-client';
-
 const socket = io(import.meta.env.VITE_API_URL);
-
 function PatientDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
     const [patientData, setPatientData] = useState(null);
     const [healthHistory, setHealthHistory] = useState([]);
-    const [latestVitals, setLatestVitals] = useState({});
-
+    const [latestVitals, setLatestVitals] = useState();
     const [chartMetric, setChartMetric] = useState('Heart Rate');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
-
     useEffect(() => {
         if (!user || (user.role !== 'doctor' && user.role !== 'admin')) {
             navigate('/login');
@@ -27,28 +23,22 @@ function PatientDetails() {
         }
         fetchPatientData();
         fetchHealthHistory();
-
         socket.emit('user_connected', user._id || user.id);
-
         socket.on('healthUpdate', (data) => {
             const incomingPatientId =
                 data?.patientId ||
                 data?.patient?._id ||
                 data?.patient;
-
             if (!incomingPatientId) return;
             if (incomingPatientId?.toString() !== id?.toString()) return;
-
             setHealthHistory(prev => [data, ...prev]);
             setLatestVitals(prev => ({ ...prev, [data.type]: data }));
             setCurrentPage(1);
         });
-
         return () => {
             socket.off('healthUpdate');
         };
     }, [id, user, navigate]);
-
     const fetchPatientData = async () => {
         try {
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/${id}`, { withCredentials: true });
@@ -58,16 +48,13 @@ function PatientDetails() {
             setPatientData({ name: 'Patient View', email: 'loading...' });
         }
     };
-
     const fetchHealthHistory = async () => {
         try {
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/health/patient/${id}`, { withCredentials: true });
-
             const sortedHistory = res.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             setHealthHistory(sortedHistory);
             setCurrentPage(1);
-
-            const latest = {};
+            const latest = ;
             sortedHistory.forEach(item => {
                 if (!latest[item.type]) latest[item.type] = item;
             });
@@ -76,7 +63,6 @@ function PatientDetails() {
             console.error("Failed to fetch health history");
         }
     };
-
     const chartData = healthHistory
         .filter(r => r.type === chartMetric)
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
@@ -85,7 +71,6 @@ function PatientDetails() {
             value: parseFloat(r.value),
             status: r.status
         }));
-
     const getIcon = (type) => {
         switch (type) {
             case 'Heart Rate': return <Heart className="text-red-500" />;
@@ -95,29 +80,23 @@ function PatientDetails() {
             default: return <Activity className="text-gray-500" />;
         }
     };
-
     const getStatusColor = (status) => {
         if (status === 'Critical') return 'bg-red-100 text-red-700 border-red-200';
         if (status === 'Abnormal') return 'bg-orange-100 text-orange-700 border-orange-200';
         return 'bg-green-100 text-green-700 border-green-200';
     };
-
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentReadings = healthHistory.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(healthHistory.length / itemsPerPage);
-
     const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
     const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
-
     if (!patientData) return <div className="p-8">Loading...</div>;
-
     return (
         <div className="min-h-screen bg-gray-50 p-8">
             <button onClick={() => navigate(-1)} className="flex items-center text-gray-600 hover:text-blue-600 mb-6">
                 <ArrowLeft size={20} className="mr-2" /> Back to Dashboard
             </button>
-
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
                 <div className="flex justify-between items-start">
                     <div>
@@ -141,18 +120,15 @@ function PatientDetails() {
                     </div>
                 </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 {['Heart Rate', 'Blood Pressure', 'Temperature', 'SpO2', 'Glucose'].map((type) => {
                     const reading = latestVitals[type];
-
                     let safeRange = '';
                     if (type === 'Heart Rate') safeRange = '60-100 bpm';
                     else if (type === 'Blood Pressure') safeRange = '90/60 - 120/80';
                     else if (type === 'Temperature') safeRange = '36.5 - 37.5 °C';
                     else if (type === 'SpO2') safeRange = '95 - 100 %';
                     else if (type === 'Glucose') safeRange = '70 - 140 mg/dL';
-
                     return (
                         <div key={type} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 relative overflow-hidden group">
                             <div className="flex justify-between items-start mb-4">
@@ -187,8 +163,6 @@ function PatientDetails() {
                     );
                 })}
             </div>
-
-            { }
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                     <h3 className="text-lg font-bold text-gray-900">Health Trends (Pictorial View)</h3>
@@ -207,7 +181,6 @@ function PatientDetails() {
                         ))}
                     </div>
                 </div>
-
                 <div className="h-80 w-full relative">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData}>
@@ -246,7 +219,6 @@ function PatientDetails() {
                     )}
                 </div>
             </div>
-
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-8">
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h2 className="text-lg font-bold text-gray-800">Complete History</h2>
@@ -298,7 +270,6 @@ function PatientDetails() {
                         </tbody>
                     </table>
                 </div>
-
                 {healthHistory.length > itemsPerPage && (
                     <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50">
                         <p className="text-sm text-gray-500">
@@ -323,8 +294,6 @@ function PatientDetails() {
                     </div>
                 )}
             </div>
-
-            { }
             <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="p-6 border-b border-gray-100">
                     <h2 className="text-lg font-bold text-gray-800">Alert History</h2>
@@ -336,24 +305,20 @@ function PatientDetails() {
         </div>
     );
 }
-
 const PatientAlerts = ({ patientId }) => {
     const [alerts, setAlerts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
-
     useEffect(() => {
         const onAlert = (alert) => {
             const incomingPatientId =
                 alert?.patientId ||
                 alert?.patient?._id ||
                 alert?.patient;
-
             if (!incomingPatientId) return;
             if (incomingPatientId?.toString() !== patientId?.toString()) return;
-
             setAlerts(prev => {
                 const normalizedIncomingId = alert?._id?.toString();
                 if (normalizedIncomingId && prev.some(a => a?._id?.toString() === normalizedIncomingId)) {
@@ -362,20 +327,16 @@ const PatientAlerts = ({ patientId }) => {
                 return [alert, ...prev];
             });
         };
-
         socket.on('healthAlert', onAlert);
         return () => {
             socket.off('healthAlert', onAlert);
         };
     }, [patientId]);
-
     useEffect(() => {
         const fetchAlerts = async () => {
             if (!patientId) return;
-
             setLoading(true);
             setError(null);
-
             try {
                 console.log(`Fetching alerts for patient: ${patientId}`);
                 const res = await axios.get(
@@ -403,30 +364,23 @@ const PatientAlerts = ({ patientId }) => {
                 setLoading(false);
             }
         };
-
         fetchAlerts();
     }, [patientId]);
-
     if (loading) {
         return <div className="text-center py-4">Loading alerts...</div>;
     }
-
     if (error) {
         return <div className="text-red-600 text-center py-4">{error}</div>;
     }
-
     if (alerts.length === 0) {
         return <div className="text-gray-500 text-center py-4">No alerts recorded for this patient.</div>;
     }
-
     const totalPages = Math.ceil(alerts.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentAlerts = alerts.slice(indexOfFirstItem, indexOfLastItem);
-
     const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
     const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
-
     return (
         <div className="space-y-3">
             {currentAlerts.map((alert) => (
@@ -449,7 +403,6 @@ const PatientAlerts = ({ patientId }) => {
                     </div>
                 </div>
             ))}
-
             {alerts.length > itemsPerPage && (
                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                     <p className="text-xs text-gray-500">
@@ -476,5 +429,4 @@ const PatientAlerts = ({ patientId }) => {
         </div>
     );
 };
-
 export default PatientDetails;

@@ -1,7 +1,6 @@
 const ActivityLog = require('../models/ActivityLog');
 const Alert = require('../models/Alert'); 
 const User = require('../models/User');
-
 const getRecentActivities = async (req, res) => {
     try {
         const logs = await ActivityLog.find()
@@ -13,7 +12,6 @@ const getRecentActivities = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
-
 const createAlert = async (req, res) => {
     try {
         const { type, message, severity, patient } = req.body;
@@ -23,19 +21,15 @@ const createAlert = async (req, res) => {
             message,
             severity
         });
-
         const populatedAlert = await Alert.findById(alert._id).populate('patient', 'name patientId email');
-
         const io = req.app.get('io');
         if (io) {
             const patientId = populatedAlert?.patient?._id?.toString();
             const patientDoc = patientId ? await User.findById(patientId).select('assignedDoctors') : null;
-
             const alertToEmit = {
                 ...populatedAlert.toObject(),
                 patientId
             };
-
             if (patientId) {
                 io.to(patientId).emit('healthAlert', alertToEmit);
                 (patientDoc?.assignedDoctors || []).forEach((doctorId) => {
@@ -45,23 +39,18 @@ const createAlert = async (req, res) => {
                 io.emit('healthAlert', alertToEmit);
             }
         }
-
         res.status(201).json(populatedAlert);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
 const getAlerts = async (req, res) => {
     try {
-        let query = {};
-        
+        let query = ;
         if (req.user.role === 'patient') {
             query.patient = req.user._id;
         }
-
         if (req.user.role === 'guardian') {
-
             const guardian = await User.findById(req.user._id);
             if (guardian && guardian.requestedPatientId) {
                 query.patient = guardian.requestedPatientId;
@@ -69,23 +58,18 @@ const getAlerts = async (req, res) => {
                 return res.json([]); 
             }
         }
-
         if (req.user.role === 'doctor' || req.user.role === 'admin') {
-            
-            query = {}; 
+            query = ; 
         }
-
         const alerts = await Alert.find(query)
             .sort({ timestamp: -1 })
             .limit(50)
             .populate('patient', 'name patientId email');
-
         res.json(alerts);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
 const getPatientAlerts = async (req, res) => {
     try {
         const patientId = req.params.id || req.params.patientId;
@@ -98,7 +82,6 @@ const getPatientAlerts = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
 const markAlertRead = async (req, res) => {
     try {
         const alert = await Alert.findById(req.params.id);
@@ -112,7 +95,6 @@ const markAlertRead = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
 module.exports = {
     getRecentActivities,
     createAlert,

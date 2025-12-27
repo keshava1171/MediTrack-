@@ -4,20 +4,16 @@ import { useSelector } from 'react-redux';
 import { Pill, Search, Calendar, User, FileText, Trash2, ChevronLeft, ChevronRight, Download, Activity, Eye, Stethoscope, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-
 const AdminPrescriptions = () => {
     const { user } = useSelector((state) => state.auth);
     const navigate = useNavigate();
-
     const [prescriptions, setPrescriptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
-
     const [selectedPrescription, setSelectedPrescription] = useState(null);
     const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
-
     useEffect(() => {
         if (!user || user.role !== 'admin') {
             navigate('/admin/login');
@@ -25,7 +21,6 @@ const AdminPrescriptions = () => {
         }
         fetchPrescriptions();
     }, [user, navigate]);
-
     const fetchPrescriptions = async () => {
         try {
             const res = await fetch('http://localhost:5000/api/prescriptions', {
@@ -44,16 +39,13 @@ const AdminPrescriptions = () => {
             setLoading(false);
         }
     };
-
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this prescription? This action cannot be undone.')) return;
-
         try {
             const res = await fetch(`http://localhost:5000/api/prescriptions/${id}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
-
             if (res.ok) {
                 toast.success('Prescription deleted');
                 setPrescriptions(prev => prev.filter(p => p._id !== id));
@@ -64,7 +56,6 @@ const AdminPrescriptions = () => {
             toast.error('Server error');
         }
     };
-
     const filteredPrescriptions = prescriptions.filter(p => {
         const searchLower = searchTerm.toLowerCase();
         return (
@@ -74,35 +65,26 @@ const AdminPrescriptions = () => {
             (p.patientId?.patientId?.toLowerCase() || '').includes(searchLower)
         );
     });
-
     const totalPages = Math.ceil(filteredPrescriptions.length / itemsPerPage);
     const displayedPrescriptions = filteredPrescriptions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
     const handlePrint = () => {
         const prescription = document.getElementById('printable-prescription');
         if (!prescription) return;
-
         const existingContainer = document.getElementById('print-container');
         if (existingContainer) {
             existingContainer.remove();
         }
-
         const printContainer = document.createElement('div');
         printContainer.id = 'print-container';
         printContainer.style.display = 'none';
-
         printContainer.innerHTML = prescription.innerHTML;
-
         document.body.appendChild(printContainer);
-
         window.print();
-
         setTimeout(() => {
             const container = document.getElementById('print-container');
             if (container) container.remove();
         }, 100);
     };
-
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto">
@@ -121,8 +103,6 @@ const AdminPrescriptions = () => {
                         <p className="text-gray-500 mt-1">View, audit, and manage patient prescriptions.</p>
                     </div>
                 </div>
-
-                { }
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
                         <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
@@ -134,10 +114,7 @@ const AdminPrescriptions = () => {
                         </div>
                     </div>
                 </div>
-
-                { }
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    { }
                     <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center bg-gray-50/50">
                         <div className="relative flex-1 w-full md:w-auto">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -150,8 +127,6 @@ const AdminPrescriptions = () => {
                             />
                         </div>
                     </div>
-
-                    { }
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -230,8 +205,6 @@ const AdminPrescriptions = () => {
                             </tbody>
                         </table>
                     </div>
-
-                    { }
                     <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/30">
                         <span className="text-sm text-gray-500">Showing {displayedPrescriptions.length} of {filteredPrescriptions.length} entries</span>
                         <div className="flex gap-2">
@@ -253,8 +226,6 @@ const AdminPrescriptions = () => {
                     </div>
                 </div>
             </div>
-
-            { }
             <AnimatePresence>
                 {isPrintModalOpen && selectedPrescription && (
                     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm no-print">
@@ -282,15 +253,12 @@ const AdminPrescriptions = () => {
                                     </button>
                                 </div>
                             </div>
-
                             <div className="overflow-y-auto flex-1 p-8">
-                                { }
                                 <div
                                     id="printable-prescription"
                                     className="bg-white p-8 mx-auto shadow-sm max-w-[210mm] min-h-[297mm]"
                                     style={{ width: '100%', maxWidth: '800px' }}
                                 >
-                                    { }
                                     <div className="flex justify-between items-start border-b-2 border-blue-600 pb-6 mb-8">
                                         <div className="flex items-center gap-3">
                                             <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">M</div>
@@ -306,8 +274,6 @@ const AdminPrescriptions = () => {
                                             <p className="text-xs text-gray-500">{selectedPrescription.doctorId?.contact || '+1 234 567 890'}</p>
                                         </div>
                                     </div>
-
-                                    { }
                                     <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-100">
                                         <div className="grid grid-cols-2 gap-y-4 text-sm">
                                             <div>
@@ -328,8 +294,6 @@ const AdminPrescriptions = () => {
                                             </div>
                                         </div>
                                     </div>
-
-                                    { }
                                     <div className="mb-8">
                                         <h3 className="text-sm font-bold text-gray-900 uppercase border-b border-gray-200 pb-2 mb-4 flex items-center gap-2">
                                             <Pill size={16} /> Prescribed Medicines
@@ -355,8 +319,6 @@ const AdminPrescriptions = () => {
                                             </tbody>
                                         </table>
                                     </div>
-
-                                    { }
                                     {selectedPrescription.instructions && (
                                         <div className="mb-12">
                                             <h3 className="text-sm font-bold text-gray-900 uppercase border-b border-gray-200 pb-2 mb-4 flex items-center gap-2">
@@ -367,15 +329,12 @@ const AdminPrescriptions = () => {
                                             </div>
                                         </div>
                                     )}
-
-                                    { }
                                     <div className="mt-12 pt-8 border-t border-gray-200 flex justify-between items-end">
                                         <div className="text-xs text-gray-400">
                                             <p>Generated by MediTrack Digital Health System</p>
                                             <p>{new Date(selectedPrescription.createdAt).toLocaleString()}</p>
                                         </div>
                                         <div className="text-center">
-                                            { }
                                             <div className="text-2xl text-blue-900 mb-1 font-bold italic" style={{ fontFamily: 'cursive' }}>
                                                 {(selectedPrescription.doctorId?.name || 'Unknown').replace(/^Dr\.?\s+/i, '')}
                                             </div>
@@ -383,8 +342,6 @@ const AdminPrescriptions = () => {
                                             <p className="text-xs text-gray-500 uppercase font-bold">Signature</p>
                                         </div>
                                     </div>
-
-                                    { }
                                     <div className="mt-8 pt-4 border-t border-gray-100 text-center">
                                         <p className="text-xs text-gray-400">This is a digitally generated prescription. Valid without physical signature in accordance with IT Act.</p>
                                     </div>
@@ -397,18 +354,13 @@ const AdminPrescriptions = () => {
                                     margin: 0;
                                     size: A4 portrait;
                                 }
-                                
                                 body {
                                     margin: 0;
                                     padding: 0;
                                 }
-                                
-                                
                                 body > * {
                                     display: none !important;
                                 }
-                                
-                                
                                 #print-container {
                                     display: block !important;
                                     position: relative !important;
@@ -418,8 +370,6 @@ const AdminPrescriptions = () => {
                                     padding: 20px !important;
                                     background: white !important;
                                 }
-                                
-                                
                                 * {
                                     -webkit-print-color-adjust: exact !important;
                                     print-color-adjust: exact !important;
@@ -433,5 +383,4 @@ const AdminPrescriptions = () => {
         </div>
     );
 };
-
 export default AdminPrescriptions;

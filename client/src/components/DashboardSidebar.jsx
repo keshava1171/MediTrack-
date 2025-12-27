@@ -4,32 +4,26 @@ import { useDispatch } from 'react-redux';
 import { logout } from '../features/auth/authSlice';
 import { LayoutDashboard, Users, LogOut, FileText, MessageSquare, User, Activity, Shield, Home, Pill } from 'lucide-react';
 import NotificationBell from './NotificationBell';
-
 const DashboardSidebar = ({ role, onHoverChange }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
     const [isHovered, setIsHovered] = useState(false);
-
     const handleHover = (status) => {
         setIsHovered(status);
         if (onHoverChange) onHoverChange(status);
     };
-
     const handleLogout = () => {
         dispatch(logout());
         navigate('/');
     };
-
     const handleLogoClick = () => {
         if (role === 'doctor') navigate('/doctor-dashboard');
         else if (role === 'patient') navigate('/health-dashboard');
         else if (role === 'admin') navigate('/admin/dashboard');
         else navigate('/');
     };
-
     const isActive = (path) => location.pathname === path;
-
     const SidebarItem = ({ icon: Icon, label, path, onClick, danger }) => (
         <button
             onClick={onClick || (() => navigate(path))}
@@ -45,7 +39,6 @@ const DashboardSidebar = ({ role, onHoverChange }) => {
             {isHovered && <span className="ml-3 font-medium whitespace-nowrap">{label}</span>}
         </button>
     );
-
     return (
         <aside
             className={`fixed inset-y-0 left-0 bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out ${isHovered ? 'w-64 shadow-xl' : 'w-20'}`}
@@ -53,7 +46,6 @@ const DashboardSidebar = ({ role, onHoverChange }) => {
             onMouseLeave={() => handleHover(false)}
         >
             <div className="h-full flex flex-col">
-                { }
                 <div className="h-20 flex items-center justify-center border-b border-gray-100 cursor-pointer" onClick={handleLogoClick}>
                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
                         M
@@ -64,10 +56,7 @@ const DashboardSidebar = ({ role, onHoverChange }) => {
                         </span>
                     )}
                 </div>
-
-                { }
                 <div className="flex-1 py-8 px-3 space-y-2 overflow-y-auto">
-
                     {role === 'admin' && (
                         <>
                             <SidebarItem icon={LayoutDashboard} label="Overview" path="/admin/dashboard" />
@@ -75,7 +64,6 @@ const DashboardSidebar = ({ role, onHoverChange }) => {
                             <SidebarItem icon={Pill} label="Prescriptions" path="/admin/prescriptions" />
                         </>
                     )}
-
                     {role === 'doctor' && (
                         <>
                             <SidebarItem icon={Home} label="Home" path="/" />
@@ -86,7 +74,6 @@ const DashboardSidebar = ({ role, onHoverChange }) => {
                             <SidebarItem icon={User} label="Profile" path="/profile" />
                         </>
                     )}
-
                     {role === 'patient' && (
                         <>
                             <SidebarItem icon={Home} label="Home" path="/" />
@@ -97,7 +84,6 @@ const DashboardSidebar = ({ role, onHoverChange }) => {
                             <SidebarItem icon={User} label="Profile" path="/profile" />
                         </>
                     )}
-
                     <div className="border-t border-gray-100 my-2 pt-2"></div>
                     <SidebarItem icon={LogOut} label="Sign Out" onClick={handleLogout} danger />
                 </div>
@@ -105,5 +91,4 @@ const DashboardSidebar = ({ role, onHoverChange }) => {
         </aside>
     );
 };
-
 export default DashboardSidebar;

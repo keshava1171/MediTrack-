@@ -7,19 +7,16 @@ import { Send, Paperclip, MapPin, ArrowLeft, Heart, Trash2, X, FileText, Image a
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import FilePreviewModal from '../components/FilePreviewModal';
-
 function Chat() {
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
-
-        const socketRef = useRef(null);
+    const socketRef = useRef(null);
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
     const fileInputRef = useRef(null);
     const selectedUserRef = useRef(null);
-    const userRef = useRef(user);     const isAtBottomRef = useRef(true);
-
-        const [selectedUser, setSelectedUser] = useState(null);
+    const userRef = useRef(user); const isAtBottomRef = useRef(true);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const [users, setUsers] = useState([]);
@@ -29,14 +26,11 @@ function Chat() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [replyingTo, setReplyingTo] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
-
-        useEffect(() => { selectedUserRef.current = selectedUser; }, [selectedUser]);
+    useEffect(() => { selectedUserRef.current = selectedUser; }, [selectedUser]);
     useEffect(() => { userRef.current = user; }, [user]);
-
     const getConversationId = (uid1, uid2) => {
         return [uid1, uid2].sort().join('_');
     };
-
     const fetchUsers = async () => {
         try {
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/users`, { withCredentials: true });
@@ -48,7 +42,6 @@ function Chat() {
             toast.error('Failed to load contacts');
         }
     };
-
     const fetchMessages = async (targetUserId) => {
         try {
             if (!userRef.current) return;
@@ -62,21 +55,17 @@ function Chat() {
             toast.error('Failed to load chat history');
         }
     };
-
-        useEffect(() => {
+    useEffect(() => {
         if (!user) {
             navigate('/login');
             return;
         }
-
         socketRef.current = io(import.meta.env.VITE_API_URL, {
             withCredentials: true,
             transports: ['polling', 'websocket']
         });
-
         socketRef.current.emit('user_connected', user._id || user.id);
         fetchUsers();
-
         return () => {
             if (socketRef.current) {
                 socketRef.current.disconnect();
@@ -84,30 +73,23 @@ function Chat() {
             }
         };
     }, [user, navigate]);
-
-        useEffect(() => {
-                                                                                                
-        if (!user) return; 
-                                        
+    useEffect(() => {
+        if (!user) return;
         const attachListeners = () => {
             if (!socketRef.current) return;
             const socket = socketRef.current;
-
             const handleStatusUpdate = ({ userId, isOnline, lastActive }) => {
                 setUsers(prevUsers => prevUsers.map(u =>
                     u._id === userId ? { ...u, isOnline, lastActive } : u
                 ));
-
                 if (selectedUserRef.current?._id === userId) {
                     setSelectedUser(prev => ({ ...prev, isOnline, lastActive }));
                 }
             };
-
             const handleReceiveMessage = (data) => {
                 const myId = userRef.current?._id || userRef.current?.id;
                 const targetId = selectedUserRef.current?._id || selectedUserRef.current?.id;
-
-                                if (data.conversationId === getConversationId(myId, targetId)) {
+                if (data.conversationId === getConversationId(myId, targetId)) {
                     setMessages((prev) => [...prev, data]);
                     if (!isAtBottomRef.current) {
                         setUnreadCount(prev => prev + 1);
@@ -115,97 +97,71 @@ function Chat() {
                         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
                     }
                 } else {
-                                        if (data.sender !== userRef.current.name) {
+                    if (data.sender !== userRef.current.name) {
                         toast.success(`New message from ${data.sender}`, { icon: '💬' });
                     }
                 }
             };
-
             const handleMessageUpdate = (updatedMsg) => {
                 setMessages((prev) => prev.map(msg => msg._id === updatedMsg._id ? updatedMsg : msg));
             };
-
             const handleDeleteMessage = ({ messageId }) => {
                 setMessages(prev => prev.map(msg =>
                     msg._id === messageId ? { ...msg, isDeleted: true } : msg
                 ));
             }
-
-            const handleRelationshipUpdate = () => {
-                                                                                                                                                                                                                                                            };
-
+            const handleRelationshipUpdate = () => ;
             socket.on('user_status_update', handleStatusUpdate);
             socket.on('receive_message', handleReceiveMessage);
             socket.on('message_updated', handleMessageUpdate);
-            socket.on('delete_message_notification', handleDeleteMessage);                                                                                                             
+            socket.on('delete_message_notification', handleDeleteMessage);
             socket.on('relationship_updated', () => {
-                                                                            });
-
+                console.log('🔄 Relationship updated - refreshing contacts');
+                fetchUsers();
+            });
             return () => {
                 socket.off('user_status_update', handleStatusUpdate);
                 socket.off('receive_message', handleReceiveMessage);
                 socket.off('message_updated', handleMessageUpdate);
                 socket.off('relationship_updated');
-                            };
+            };
         };
-
-                                                                
         const cleanup = attachListeners();
         return cleanup;
-
-    }, [user]); 
-        useEffect(() => {
+    }, [user]);
+    useEffect(() => {
         if (selectedUser) {
             fetchMessages(selectedUser._id);
             setUnreadCount(0);
         }
     }, [selectedUser]);
-
     const filteredUsers = useMemo(() => {
         let candidates = users;
-
         if (searchQuery) {
-            return candidates.filter(u =>
+            candidates = candidates.filter(u =>
                 u.name.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
-
         if (user.role === 'admin') {
             if (userFilter === 'doctor') {
                 candidates = candidates.filter(u => u.role === 'doctor');
             } else if (userFilter === 'patient') {
                 candidates = candidates.filter(u => u.role === 'patient');
             }
-        } else if (user.role === 'doctor') {
-            candidates = candidates.filter(u =>
-                u.role === 'admin' ||
-                u.role === 'doctor' ||
-                (u.role === 'patient')
-            );
-        } else if (user.role === 'patient') {
-                        candidates = candidates.filter(u =>
-                u.role === 'admin' ||
-                (u.role === 'doctor' && user.assignedDoctors?.some(d => (d._id || d) === u._id))
-            );
         }
-
         return candidates;
-    }, [users, userFilter, user.role, user.assignedDoctors, searchQuery]);
-
-    const sendMessage = (type = 'text', content = null, extraData = {}) => {
+    }, [users, userFilter, user.role, searchQuery]);
+    const sendMessage = (type = 'text', content = null, extraData = ) => {
         if (!selectedUser) return;
         if ((type === 'text' && !message.trim()) || (type !== 'text' && !content)) return;
-
         const senderId = user._id || user.id;
         const receiverId = selectedUser._id || selectedUser.id;
-
-                const replySnapshot = replyingTo ? {
+        const replySnapshot = replyingTo ? {
             _id: replyingTo._id,
             sender: replyingTo.sender,
             content: replyingTo.content,
             type: replyingTo.type
         } : null;
-
         const msgData = {
             sender: user.name,
             receiver: selectedUser.name,
@@ -214,57 +170,45 @@ function Chat() {
             content: content || message,
             type: type,
             timestamp: new Date(),
-            replyTo: replySnapshot,             ...extraData
+            replyTo: replySnapshot, ...extraData
         };
-
         socketRef.current.emit('send_message', msgData);
-
         if (type === 'text') setMessage('');
         setReplyingTo(null);
         setShowEmojiPicker(false);
     };
-
     const handleScroll = () => {
         if (!chatContainerRef.current) return;
         const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-        const isBottom = scrollHeight - scrollTop - clientHeight < 50;         isAtBottomRef.current = isBottom;
+        const isBottom = scrollHeight - scrollTop - clientHeight < 50; isAtBottomRef.current = isBottom;
         if (isBottom) setUnreadCount(0);
     };
-
     const handleEmojiClick = (emojiObject) => {
         setMessage((prev) => prev + emojiObject.emoji);
     };
-
     const handleFileUpload = async (e) => {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
-
         const formData = new FormData();
         files.forEach(file => {
             formData.append('files', file);
         });
-
         try {
             toast.loading(`Uploading ${files.length} file(s)...`);
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/upload`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-
             toast.dismiss();
             toast.success('Files sent');
-
             res.data.forEach(fileData => {
                 const type = fileData.originalType.startsWith('image/') ? 'image' : 'file';
-
                 sendMessage(type, fileData.fileName, {
                     fileUrl: fileData.fileUrl,
                     fileName: fileData.fileName,
                     fileSize: fileData.fileSize
                 });
             });
-
-                        if (fileInputRef.current) fileInputRef.current.value = '';
-
+            if (fileInputRef.current) fileInputRef.current.value = '';
         } catch (err) {
             console.error(err);
             toast.dismiss();
@@ -272,7 +216,6 @@ function Chat() {
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
-
     const handleLocationShare = () => {
         if (!navigator.geolocation) {
             toast.error('Geolocation is not supported by your browser');
@@ -295,27 +238,21 @@ function Chat() {
             }
         );
     };
-
     const handleLike = (msgId) => {
         socketRef.current.emit('like_message', { messageId: msgId, userId: user._id, userName: user.name });
     };
-
     const handleDelete = (msgId) => {
         if (confirm('Are you sure you want to delete this message?')) {
-                        setMessages(prev =>
+            setMessages(prev =>
                 prev.map(m =>
                     m._id === msgId ? { ...m, isDeleted: true } : m
                 )
             );
-
             socketRef.current.emit('delete_message', { messageId: msgId, userName: user.name });
         }
     };
-
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
-
-            {}
             <div className="w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-20">
                 <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
                     <div className="flex items-center">
@@ -332,7 +269,6 @@ function Chat() {
                         </button>
                         <h1 className="text-xl font-bold text-gray-800">Messages</h1>
                     </div>
-
                     {user.role === 'admin' && (
                         <div className="flex bg-gray-200 rounded-lg p-1 text-xs font-semibold">
                             <button
@@ -350,8 +286,6 @@ function Chat() {
                         </div>
                     )}
                 </div>
-
-                {}
                 <div className="p-4 bg-white border-b border-gray-100">
                     <div className="relative">
                         <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
@@ -364,8 +298,6 @@ function Chat() {
                         />
                     </div>
                 </div>
-
-                {}
                 <div className="flex-1 overflow-y-auto">
                     {filteredUsers.length > 0 ? (
                         filteredUsers.map(u => (
@@ -382,7 +314,6 @@ function Chat() {
                                             <span className="text-lg font-bold">{u.name?.charAt(0)}</span>
                                         )}
                                     </div>
-
                                     {u.isOnline && (
                                         <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                                     )}
@@ -390,7 +321,6 @@ function Chat() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-baseline mb-1">
                                         <h3 className="font-semibold text-gray-900 truncate">{u.name}</h3>
-
                                     </div>
                                     <div className="flex items-center text-xs text-gray-500">
                                         <span className="capitalize font-medium">{u.role}</span>
@@ -412,12 +342,9 @@ function Chat() {
                     )}
                 </div>
             </div>
-
-            {}
             <div className={`flex-1 flex flex-col bg-white ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
                 {selectedUser ? (
                     <>
-                        {}
                         <div className="h-16 border-b border-gray-200 flex items-center px-6 justify-between bg-white shadow-sm z-10">
                             <div className="flex items-center">
                                 <button onClick={() => setSelectedUser(null)} className="mr-3 md:hidden text-gray-500">
@@ -453,11 +380,8 @@ function Chat() {
                                 </div>
                             </div>
                             <div className="flex gap-3">
-
                             </div>
                         </div>
-
-                        {}
                         <div
                             ref={chatContainerRef}
                             onScroll={handleScroll}
@@ -467,27 +391,21 @@ function Chat() {
                                 const isMe = msg.sender === user?.name;
                                 const isDeleted = msg.isDeleted;
                                 const reply = msg.replyTo;
-
                                 return (
                                     <div key={msg._id || index} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                         <div className={`max-w-[85%] md:max-w-[70%] lg:max-w-[60%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-
                                             <div className={`px-4 py-3 rounded-2xl shadow-sm relative group ${isDeleted
                                                 ? 'bg-gray-200 border border-gray-300 italic text-gray-500'
                                                 : isMe
                                                     ? 'bg-blue-600 text-white rounded-br-none'
                                                     : 'bg-white text-gray-800 rounded-bl-none'
                                                 }`}>
-
-                                                {}
                                                 {reply && !isDeleted && (
                                                     <div className={`mb-2 p-2 rounded-lg text-xs border-l-4 ${isMe ? 'bg-blue-500 border-white/50 text-white' : 'bg-gray-100 border-blue-500 text-gray-600'}`}>
                                                         <p className="font-bold mb-0.5">{reply.sender || 'Unknown'}</p>
                                                         <p className="truncate opacity-80">{reply.type === 'text' ? reply.content : `Sent a ${reply.type}`}</p>
                                                     </div>
                                                 )}
-
-                                                {}
                                                 {isDeleted ? (
                                                     <div className="flex items-center text-sm italic opacity-70">
                                                         <Trash2 size={14} className="mr-2" />
@@ -495,10 +413,7 @@ function Chat() {
                                                     </div>
                                                 ) : (
                                                     <>
-                                                        {}
                                                         {msg.type === 'text' && <p className="whitespace-pre-wrap">{msg.content}</p>}
-
-                                                        {}
                                                         {msg.type === 'image' && (
                                                             <div className="mb-1">
                                                                 <img
@@ -509,8 +424,6 @@ function Chat() {
                                                                 />
                                                             </div>
                                                         )}
-
-                                                        {}
                                                         {msg.type === 'file' && (
                                                             <button
                                                                 onClick={() => setPreviewFile({ url: msg.fileUrl, name: msg.fileName, type: 'file' })}
@@ -523,8 +436,6 @@ function Chat() {
                                                                 </div>
                                                             </button>
                                                         )}
-
-                                                        {}
                                                         {msg.type === 'location' && (
                                                             <a
                                                                 href={`https://www.google.com/maps?q=${msg.location.lat},${msg.location.lng}`}
@@ -538,15 +449,11 @@ function Chat() {
                                                         )}
                                                     </>
                                                 )}
-
-                                                {}
                                                 {!isDeleted && (
                                                     <div className={`flex items-center justify-end gap-1.5 mt-1 opacity-100 transition-opacity`}>
                                                         <span className={`text-[10px] ${isMe ? 'text-blue-200' : 'text-gray-400'}`}>
                                                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                         </span>
-
-                                                        {}
                                                         <button
                                                             onClick={() => setReplyingTo(msg)}
                                                             className={`p-1 rounded-full hover:bg-black/10 transition ${isMe ? 'text-blue-100 hover:text-white' : 'text-gray-400 hover:text-gray-600'}`}
@@ -554,8 +461,6 @@ function Chat() {
                                                         >
                                                             <Reply size={12} />
                                                         </button>
-
-                                                        {}
                                                         <button
                                                             onClick={() => handleLike(msg._id)}
                                                             className={`p-1 rounded-full hover:bg-black/10 transition ${msg.likes?.includes(user?.name) ? 'text-red-500' : (isMe ? 'text-blue-100 hover:text-white' : 'text-gray-400 hover:text-gray-600')}`}
@@ -563,8 +468,6 @@ function Chat() {
                                                             <Heart size={12} fill={msg.likes?.includes(user?.name) ? "currentColor" : "none"} />
                                                         </button>
                                                         {msg.likes?.length > 0 && <span className={`text-[10px] ml-[-2px] ${isMe ? 'text-blue-200' : 'text-gray-500'}`}>{msg.likes.length}</span>}
-
-                                                        {}
                                                         {isMe && (
                                                             <button onClick={() => handleDelete(msg._id)} className="p-1 rounded-full hover:bg-black/10 text-blue-100 hover:text-red-500 transition">
                                                                 <Trash2 size={12} />
@@ -579,11 +482,7 @@ function Chat() {
                             })}
                             <div ref={messagesEndRef} />
                         </div>
-
-                        {}
                         <div className="bg-white p-4 border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] relative z-30">
-
-                            {}
                             {replyingTo && (
                                 <div className="flex items-center justify-between bg-blue-50 px-4 py-2 rounded-t-xl border-b border-blue-100 mb-2">
                                     <div className="flex items-center text-sm text-blue-700">
@@ -598,7 +497,6 @@ function Chat() {
                                     </button>
                                 </div>
                             )}
-
                             {showEmojiPicker && (
                                 <div className="absolute bottom-20 left-4 z-40 shadow-2xl rounded-xl">
                                     <div className="flex justify-end bg-white p-1 rounded-t-xl border-b">
@@ -607,9 +505,7 @@ function Chat() {
                                     <EmojiPicker onEmojiClick={handleEmojiClick} height={350} width={300} />
                                 </div>
                             )}
-
                             <form onSubmit={(e) => { e.preventDefault(); sendMessage('text'); }} className="flex items-end gap-2 max-w-7xl mx-auto">
-                                {}
                                 <div className="flex gap-1 mb-2">
                                     <input
                                         type="file"
@@ -635,8 +531,6 @@ function Chat() {
                                         <MapPin size={20} />
                                     </button>
                                 </div>
-
-                                {}
                                 <div className="flex-1 bg-gray-100 rounded-2xl flex items-center px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white transition">
                                     <button
                                         type="button"
@@ -653,8 +547,6 @@ function Chat() {
                                         className="flex-1 bg-transparent border-none focus:outline-none py-2 max-h-32"
                                     />
                                 </div>
-
-                                {}
                                 <button
                                     type="submit"
                                     disabled={!message.trim()}
@@ -675,7 +567,6 @@ function Chat() {
                     </div>
                 )}
             </div>
-
             <FilePreviewModal
                 isOpen={!!previewFile}
                 onClose={() => setPreviewFile(null)}
@@ -687,5 +578,4 @@ function Chat() {
         </div>
     );
 }
-
 export default Chat;

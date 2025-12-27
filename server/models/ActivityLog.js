@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const activityLogSchema = mongoose.Schema({
     action: {
         type: String,
@@ -21,5 +20,4 @@ const activityLogSchema = mongoose.Schema({
 }, {
     timestamps: true
 });
-
 module.exports = mongoose.model('ActivityLog', activityLogSchema);

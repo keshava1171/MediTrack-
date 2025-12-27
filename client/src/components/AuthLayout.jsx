@@ -2,28 +2,19 @@ import { Link } from 'react-router-dom';
 import heroImg from '../assets/hero_v2.png';
 import { ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
 const AuthLayout = ({ children, title, subtitle, isRegister = false }) => {
-
     return (
         <div className="min-h-screen bg-gray-50 flex overflow-hidden">
-
-            {}
             <div className={`flex w-full h-screen ${isRegister ? 'flex-row-reverse' : 'flex-row'}`}>
-
-                {}
                 <motion.div
                     layoutId="auth-image-panel"
                     transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
                     className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-700 to-indigo-800 relative flex-col justify-between p-12 text-white h-full z-10"
                 >
-                    {}
                     <div className="absolute inset-0 z-0">
                         <img src={heroImg} alt="Background" className="w-full h-full object-cover opacity-30" />
                         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/40 to-indigo-900/40 mix-blend-multiply"></div>
                     </div>
-
-                    {}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
                         className="relative z-10"
@@ -36,9 +27,7 @@ const AuthLayout = ({ children, title, subtitle, isRegister = false }) => {
                             Advanced healthcare monitoring system connecting patients, doctors, and devices in real-time.
                         </p>
                     </motion.div>
-
                     <div className="relative z-10 space-y-6">
-                        {}
                         {[
                             { title: 'Saves Time', text: 'Automated tracking eliminates manual logs.' },
                             { title: 'Improves Patient Safety', text: 'Instant alerts for critical changes.' },
@@ -63,8 +52,6 @@ const AuthLayout = ({ children, title, subtitle, isRegister = false }) => {
                         ))}
                     </div>
                 </motion.div>
-
-                {}
                 <motion.div
                     layout
                     className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative bg-white h-full z-0"
@@ -74,7 +61,6 @@ const AuthLayout = ({ children, title, subtitle, isRegister = false }) => {
                             <ArrowLeft className="w-5 h-5 mr-1" /> Home
                         </Link>
                     </div>
-
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -88,10 +74,8 @@ const AuthLayout = ({ children, title, subtitle, isRegister = false }) => {
                         {children}
                     </motion.div>
                 </motion.div>
-
             </div>
         </div>
     );
 };
-
 export default AuthLayout;

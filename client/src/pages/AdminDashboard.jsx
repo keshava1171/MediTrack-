@@ -9,9 +9,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-
 import { io } from 'socket.io-client';
-
 const SidebarItem = ({ icon: Icon, label, active, onClick, expanded }) => (
     <div
         onClick={onClick}
@@ -31,17 +29,14 @@ const SidebarItem = ({ icon: Icon, label, active, onClick, expanded }) => (
         )}
     </div>
 );
-
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
-
     const searchParams = new URLSearchParams(location.search);
     const activeTab = searchParams.get('tab') || 'Overview';
     const setActiveTab = (tab) => navigate(`/admin/dashboard?tab=${tab}`);
-
     const [allUsers, setAllUsers] = useState([]);
     const [stats, setStats] = useState({
         patients: 0,
@@ -49,9 +44,7 @@ const AdminDashboard = () => {
         admins: 0,
         prescriptions: 0
     });
-
     const [systemSettings, setSystemSettings] = useState({ maintenanceMode: false, allowRegistrations: true });
-
     const [activities, setActivities] = useState([]);
     const [healthStatus, setHealthStatus] = useState({
         server: 'Online',
@@ -59,10 +52,8 @@ const AdminDashboard = () => {
         lastBackup: 'Today, 04:00 AM',
         sync: 'Active'
     });
-
     const [searchTerm, setSearchTerm] = useState('');
     const [doctorSpecTab, setDoctorSpecTab] = useState('All');
-
     useEffect(() => {
         if (!user || user.role !== 'admin') {
             navigate('/admin/login');
@@ -70,17 +61,13 @@ const AdminDashboard = () => {
             fetchUsers();
             fetchSettings();
             fetchActivities();
-
             const socket = io(import.meta.env.VITE_API_URL);
-
             socket.on('connect', () => {
                 console.log('Admin Dashboard connected to socket');
             });
-
             socket.on('new_activity', (newLog) => {
                 setActivities(prev => [newLog, ...prev].slice(0, 10));
             });
-
             socket.on('system_health', (data) => {
                 setHealthStatus(prev => ({
                     ...prev,
@@ -88,29 +75,24 @@ const AdminDashboard = () => {
                     database: data.database,
                 }));
             });
-
             socket.on('new_user_registered', () => {
                 console.log('🆕 New user registered - refreshing user list');
                 fetchUsers();
             });
-
             socket.on('user_deleted', (data) => {
                 console.log('🗑️  User deleted - refreshing user list:', data);
                 fetchUsers();
             });
-
             socket.on('user_status_update', ({ userId, isOnline }) => {
                 setAllUsers(prev => prev.map(u =>
                     u._id === userId ? { ...u, isOnline } : u
                 ));
             });
-
             return () => {
                 socket.disconnect();
             };
         }
     }, [user, navigate]);
-
     const fetchActivities = async () => {
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/activities`, { credentials: 'include' });
@@ -118,7 +100,6 @@ const AdminDashboard = () => {
             setActivities(data);
         } catch (err) { console.error('Failed to load activities'); }
     };
-
     const fetchSettings = async () => {
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/settings`, { credentials: 'include' });
@@ -126,16 +107,13 @@ const AdminDashboard = () => {
             setSystemSettings(data);
         } catch (err) { console.error('Failed to load settings'); }
     };
-
     const fetchUsers = async () => {
         try {
             const data = await authService.getAllUsers();
             setAllUsers(data);
-
             const patients = data.filter(u => u.role === 'patient').length;
             const doctors = data.filter(u => u.role === 'doctor').length;
             const admins = data.filter(u => u.role === 'admin').length;
-
             try {
                 const pRes = await fetch(`${import.meta.env.VITE_API_URL}/api/prescriptions`, { credentials: 'include' });
                 if (pRes.ok) {
@@ -147,18 +125,14 @@ const AdminDashboard = () => {
             } catch (e) {
                 setStats({ patients, doctors, admins, prescriptions: 0 });
             }
-
         } catch (error) {
             console.error("Failed to fetch users", error);
-
         }
     };
-
     const handleLogout = () => {
         dispatch(logout());
         navigate('/admin/login');
     };
-
     const loadingTimeAgo = (dateString) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -175,7 +149,6 @@ const AdminDashboard = () => {
         if (interval > 1) return Math.floor(interval) + " mins ago";
         return Math.floor(seconds) + " seconds ago";
     };
-
     const HighlightText = ({ text = '', highlight = '' }) => {
         if (!highlight.trim()) {
             return <span>{text}</span>;
@@ -194,11 +167,9 @@ const AdminDashboard = () => {
             </span>
         );
     };
-
     const UserTable = ({ role, specialization }) => {
         const [currentPage, setCurrentPage] = useState(1);
         const usersPerPage = 10;
-
         const filteredUsers = allUsers.filter(u => {
             const matchesRole = u.role === role;
             const matchesSpec = !specialization || specialization === 'All' || u.specialization === specialization;
@@ -208,17 +179,13 @@ const AdminDashboard = () => {
                 u.email.toLowerCase().includes(searchLower) ||
                 (u.patientId && u.patientId.toLowerCase().includes(searchLower)) ||
                 (u.doctorId && u.doctorId.toLowerCase().includes(searchLower));
-
             return matchesRole && matchesSearch && matchesSpec;
         });
-
         const indexOfLastUser = currentPage * usersPerPage;
         const indexOfFirstUser = indexOfLastUser - usersPerPage;
         const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
         const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-
         const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
         return (
             <div className="flex flex-col">
                 <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
@@ -316,8 +283,6 @@ const AdminDashboard = () => {
                         </tbody>
                     </table>
                 </div>
-
-                { }
                 {filteredUsers.length > usersPerPage && (
                     <div className="flex justify-between items-center mt-4 px-2">
                         <span className="text-sm text-gray-500">
@@ -353,36 +318,28 @@ const AdminDashboard = () => {
             </div>
         );
     };
-
     const SettingsView = ({ settings, refreshSettings }) => {
-
         const toggleSetting = async (key, currentValue) => {
             const newValue = !currentValue;
             try {
-
                 if (key === 'maintenanceMode' && newValue === true) {
                     setSettings(prev => ({ ...prev, maintenanceMode: true, allowRegistrations: false }));
                 } else {
                     setSettings(prev => ({ ...prev, [key]: newValue }));
                 }
-
                 const res = await fetch(`${import.meta.env.VITE_API_URL}/api/settings`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ [key]: newValue }),
-
                 });
-
             } catch (err) {
                 console.error('Update failed');
                 fetchSettings();
             }
         };
-
         const handleToggle = async (key) => {
             const newValue = !settings[key];
             const payload = { [key]: newValue };
-
             try {
                 setSystemSettings(prev => {
                     if (key === 'maintenanceMode' && newValue === true) {
@@ -390,14 +347,12 @@ const AdminDashboard = () => {
                     }
                     return { ...prev, [key]: newValue };
                 });
-
                 await fetch(`${import.meta.env.VITE_API_URL}/api/settings`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
                     body: JSON.stringify(payload)
                 });
-
                 toast.success('System configuration updated');
                 refreshSettings();
             } catch (e) {
@@ -405,7 +360,6 @@ const AdminDashboard = () => {
                 refreshSettings();
             }
         };
-
         return (
             <div className="p-8 max-w-4xl mx-auto">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
@@ -448,18 +402,15 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </div>
-                { }
             </div>
         );
     };
-
     const [editingUser, setEditingUser] = useState(null);
     const [editForm, setEditForm] = useState({
         name: '', email: '', role: '',
         specialization: '', patientId: '', doctorId: '',
         age: '', gender: '', contact: ''
     });
-
     useEffect(() => {
         if (editingUser) {
             setEditForm({
@@ -475,16 +426,13 @@ const AdminDashboard = () => {
             });
         }
     }, [editingUser]);
-
     const handleDeleteUser = async (id) => {
         if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
-
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${id}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
-
             if (res.ok) {
                 toast.success('User deleted successfully');
                 fetchUsers();
@@ -495,7 +443,6 @@ const AdminDashboard = () => {
             toast.error('Error deleting user');
         }
     };
-
     const handleUpdateUser = async (e) => {
         e.preventDefault();
         try {
@@ -505,7 +452,6 @@ const AdminDashboard = () => {
                 credentials: 'include',
                 body: JSON.stringify(editForm)
             });
-
             if (res.ok) {
                 toast.success('User updated successfully');
                 setEditingUser(null);
@@ -517,21 +463,12 @@ const AdminDashboard = () => {
             toast.error('Error updating user');
         }
     };
-
     return (
         <div className="flex bg-gray-100 min-h-screen">
-            <Toaster position="top-right" />
-
-            { }
-
-            { }
             <div className="flex-1 flex flex-col overflow-hidden relative">
-                { }
                 <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10">
                     <div className="flex items-center">
-                        { }
                     </div>
-
                     <div className="flex items-center space-x-4">
                         <div className="relative">
                             <input
@@ -554,14 +491,10 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </header>
-
-                { }
                 <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
                     <div className="flex justify-between items-center mb-8">
                         <h1 className="text-2xl font-bold text-gray-800">{activeTab}</h1>
                     </div>
-
-                    { }
                     {systemSettings.maintenanceMode && (
                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
@@ -583,8 +516,6 @@ const AdminDashboard = () => {
                             </button>
                         </motion.div>
                     )}
-
-                    { }
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         {[
                             { label: 'Total Patients', value: stats.patients, change: 'Real-time', color: 'blue' },
@@ -605,8 +536,6 @@ const AdminDashboard = () => {
                             </motion.div>
                         ))}
                     </div>
-
-                    { }
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden min-h-[400px]">
                         {activeTab === 'Patients' && <UserTable role="patient" />}
                         {activeTab === 'Doctors' && (
@@ -627,11 +556,9 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                         )}
-
                         {activeTab === 'Overview' && (
                             <div className="p-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    { }
                                     <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
                                         <h3 className="font-bold text-lg text-blue-900 mb-4 flex items-center gap-2">
                                             <Activity size={20} /> System Health
@@ -663,8 +590,6 @@ const AdminDashboard = () => {
                                             </div>
                                         </div>
                                     </div>
-
-                                    { }
                                     <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
                                         <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
                                             <FileText size={20} /> Recent Activities
@@ -678,7 +603,6 @@ const AdminDashboard = () => {
                                                         <span className="text-gray-500 text-xs">{activity.details}</span>
                                                     </div>
                                                     <span className="ml-auto text-gray-400 text-xs whitespace-nowrap">
-                                                        { }
                                                         {loadingTimeAgo(activity.timestamp)}
                                                     </span>
                                                 </div>
@@ -699,8 +623,6 @@ const AdminDashboard = () => {
                     </div>
                 </main>
             </div>
-
-            { }
             {editingUser && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <motion.div
@@ -710,7 +632,6 @@ const AdminDashboard = () => {
                     >
                         <h2 className="text-xl font-bold mb-4">Edit User</h2>
                         <form onSubmit={handleUpdateUser} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
-                            { }
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="col-span-2">
                                     <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -741,13 +662,10 @@ const AdminDashboard = () => {
                                     >
                                         <option value="patient">Patient</option>
                                         <option value="doctor">Doctor</option>
-
                                         <option value="admin">Admin</option>
                                     </select>
                                 </div>
                             </div>
-
-                            { }
                             {editForm.role === 'doctor' && (
                                 <div className="p-3 bg-blue-50 rounded-lg space-y-3">
                                     <h4 className="font-semibold text-blue-800 text-sm">Doctor Details</h4>
@@ -775,7 +693,6 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
                             )}
-
                             {editForm.role === 'patient' && (
                                 <div className="p-3 bg-green-50 rounded-lg space-y-3">
                                     <h4 className="font-semibold text-green-800 text-sm">Patient Details</h4>
@@ -822,9 +739,7 @@ const AdminDashboard = () => {
                                         />
                                     </div>
                                 </div>
-
                             )}
-
                             <div className="flex justify-end gap-3 mt-6">
                                 <button
                                     type="button"
@@ -848,5 +763,4 @@ const AdminDashboard = () => {
         </div >
     );
 };
-
 export default AdminDashboard;

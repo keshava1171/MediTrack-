@@ -6,7 +6,6 @@ import { User, Mail, Lock, CheckCircle, Eye, EyeOff, Stethoscope } from 'lucide-
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
 import AuthLayout from '../components/AuthLayout';
-
 function Register() {
     const [formData, setFormData] = useState({
         name: '',
@@ -16,21 +15,16 @@ function Register() {
         specialization: ''
     });
     const [showPassword, setShowPassword] = useState(false);
-
     const { name, email, password, role } = formData;
-
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
     const { user, isLoading, isError, isSuccess, message } = useSelector(
         (state) => state.auth
     );
-
     useEffect(() => {
         if (isError) {
             toast.error(message || "Registration failed");
         }
-
         if (isSuccess && !user) {
             toast.success("Account Created Successfully! Please login.");
             setTimeout(() => navigate('/login'), 2000);
@@ -39,25 +33,20 @@ function Register() {
             else if (user.role === 'doctor') navigate('/doctor-dashboard');
             else navigate('/health-dashboard');
         }
-
         dispatch(reset());
     }, [user, isError, isSuccess, message, navigate, dispatch]);
-
     const onChange = (e) => {
         setFormData((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
         }));
     };
-
     const onSubmit = async (e) => {
         e.preventDefault();
         dispatch(register(formData));
     };
-
     return (
         <AuthLayout title="Create Account" subtitle="Join thousands improving their health" isRegister>
-            <Toaster position="top-center" />
             <form onSubmit={onSubmit} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -77,7 +66,6 @@ function Register() {
                         />
                     </div>
                 </div>
-
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                     <div className="relative group">
@@ -96,7 +84,6 @@ function Register() {
                         />
                     </div>
                 </div>
-
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <div className="relative group">
@@ -122,8 +109,6 @@ function Register() {
                         </button>
                     </div>
                 </div>
-
-                { }
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-3">I am a...</label>
                     <div className="grid grid-cols-2 gap-3">
@@ -137,7 +122,6 @@ function Register() {
                             <User className="mx-auto mb-2 text-blue-600" size={24} />
                             <p className="font-semibold text-gray-900">Patient</p>
                         </motion.button>
-
                         <motion.button
                             type="button"
                             onClick={() => onChange({ target: { name: 'role', value: 'doctor' } })}
@@ -150,8 +134,6 @@ function Register() {
                         </motion.button>
                     </div>
                 </div>
-
-                { }
                 {formData.role === 'doctor' && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
@@ -175,12 +157,10 @@ function Register() {
                         </select>
                     </div>
                 )}
-
                 <div className="flex items-center mt-2">
                     <input type="checkbox" required className="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
                     <span className="ml-2 text-sm text-gray-600">I agree to the <a href="#" className="text-blue-600 hover:underline">Terms of Service</a></span>
                 </div>
-
                 <motion.button
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
@@ -192,7 +172,6 @@ function Register() {
                         <span className="animate-pulse">Creating Account...</span>
                     ) : 'Create Account'}
                 </motion.button>
-
                 <p className="text-center text-gray-600 text-sm mt-6">
                     Already have an account?{' '}
                     <Link to="/login" className="text-blue-600 font-bold hover:underline">
@@ -203,5 +182,4 @@ function Register() {
         </AuthLayout>
     );
 }
-
 export default Register;

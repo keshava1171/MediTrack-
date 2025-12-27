@@ -5,7 +5,6 @@ import { Search, UserPlus, ArrowLeft, Building, Stethoscope } from 'lucide-react
 import { toast } from 'react-hot-toast';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../features/auth/authSlice';
-
 const FindDoctor = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -13,30 +12,24 @@ const FindDoctor = () => {
     const [doctors, setDoctors] = useState([]);
     const [specialization, setSpecialization] = useState('');
     const [loading, setLoading] = useState(true);
-
     const specializations = [
         'General Physician', 'General Surgeon', 'Cardiologist', 'Neurologist',
         'Orthopedic', 'Pediatrician', 'Gynecologist', 'Dermatologist', 'Pulmonologist'
     ];
-
     const [assignedDoctors, setAssignedDoctors] = useState([]);
-
     useEffect(() => {
         if (!user) {
             navigate('/login');
             return;
         }
-
         if (user.role !== 'patient') {
             const redirectPath = user.role === 'admin' ? '/admin/dashboard' : '/doctor-dashboard';
             navigate(redirectPath);
             return;
         }
-
         fetchDoctors();
         fetchAssignedDoctors();
     }, [specialization, user, navigate]);
-
     const fetchAssignedDoctors = async () => {
         try {
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/my-doctors`, { withCredentials: true });
@@ -45,7 +38,6 @@ const FindDoctor = () => {
             console.error('Failed to fetch assigned doctors', err);
         }
     };
-
     const fetchDoctors = async () => {
         try {
             setLoading(true);
@@ -59,17 +51,14 @@ const FindDoctor = () => {
             setLoading(false);
         }
     };
-
     const toggleDoctorAssignment = async (doctorId, doctorName) => {
         const isAssigned = assignedDoctors.includes(doctorId);
         const endpoint = isAssigned ? '/unassign-doctor' : '/assign-doctor';
-
         try {
             await axios.post(`${import.meta.env.VITE_API_URL}/api/auth${endpoint}`,
                 { doctorId },
                 { withCredentials: true }
             );
-
             if (isAssigned) {
                 toast.success(`Removed Dr. ${doctorName} from your list`);
                 setAssignedDoctors(prev => prev.filter(id => id !== doctorId));
@@ -77,16 +66,13 @@ const FindDoctor = () => {
                 toast.success(`Selected Dr. ${doctorName}`);
                 setAssignedDoctors(prev => [...prev, doctorId]);
             }
-
             const meRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/me`, { withCredentials: true });
             dispatch(updateUser(meRes.data));
-
         } catch (err) {
             console.error(err);
             toast.error(err.response?.data?.message || 'Failed to update selection');
         }
     };
-
     return (
         <div className="min-h-screen bg-gray-50 p-6 font-sans">
             <div className="max-w-5xl mx-auto">
@@ -96,15 +82,12 @@ const FindDoctor = () => {
                 >
                     <ArrowLeft size={20} className="mr-2" /> Back to Dashboard
                 </button>
-
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">Find Your Doctor</h1>
                         <p className="text-gray-500 mt-1">Select specialists for your primary care</p>
                     </div>
                 </div>
-
-                { }
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row items-center gap-4">
                     <div className="flex items-center gap-2 text-gray-500">
                         <Stethoscope size={20} />
@@ -130,8 +113,6 @@ const FindDoctor = () => {
                         ))}
                     </div>
                 </div>
-
-                { }
                 {loading ? (
                     <div className="text-center py-20 text-gray-500">Loading doctors...</div>
                 ) : doctors.length === 0 ? (
@@ -150,7 +131,6 @@ const FindDoctor = () => {
                                     <h3 className="text-xl font-bold text-gray-900">Dr. {doctor.name}</h3>
                                     <p className="text-blue-600 font-medium mb-1">{doctor.specialization}</p>
                                     <p className="text-gray-500 text-sm mb-6">{doctor.email}</p>
-
                                     <button
                                         onClick={() => toggleDoctorAssignment(doctor._id, doctor.name)}
                                         className={`w-full py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2 ${isAssigned
@@ -177,5 +157,4 @@ const FindDoctor = () => {
         </div>
     );
 };
-
 export default FindDoctor;

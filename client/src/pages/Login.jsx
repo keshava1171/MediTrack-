@@ -6,7 +6,6 @@ import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
 import AuthLayout from '../components/AuthLayout';
-
 function Login() {
     const [formData, setFormData] = useState({
         email: '',
@@ -14,21 +13,16 @@ function Login() {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
-
     const { email, password } = formData;
-
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
     const { user, isLoading, isError, isSuccess, message } = useSelector(
         (state) => state.auth
     );
-
     useEffect(() => {
         if (isError) {
             toast.error(message || "Login failed");
         }
-
         if (isSuccess || user) {
             if (user?.role === 'admin') {
                 navigate('/dashboard');
@@ -38,25 +32,20 @@ function Login() {
                 navigate('/health-dashboard');
             }
         }
-
         dispatch(reset());
     }, [user, isError, isSuccess, message, navigate, dispatch]);
-
     const onChange = (e) => {
         setFormData((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
         }));
     };
-
     const onSubmit = (e) => {
         e.preventDefault();
         dispatch(login({ email, password, rememberMe }));
     };
-
     return (
         <AuthLayout title="Welcome Back" subtitle="Access your health dashboard">
-            <Toaster position="top-center" />
             <form onSubmit={onSubmit} className="space-y-5">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
@@ -76,7 +65,6 @@ function Login() {
                         />
                     </div>
                 </div>
-
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <div className="relative group">
@@ -102,7 +90,6 @@ function Login() {
                         </button>
                     </div>
                 </div>
-
                 <div className="flex items-center justify-between text-sm">
                     <label className="flex items-center text-gray-600 cursor-pointer">
                         <input
@@ -117,7 +104,6 @@ function Login() {
                         Forgot Password?
                     </Link>
                 </div>
-
                 <motion.button
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
@@ -130,7 +116,6 @@ function Login() {
                     ) : 'Sign In'}
                 </motion.button>
             </form>
-
             <div className="mt-8 text-center text-sm">
                 <p className="text-gray-600">
                     Don't have an account? {' '}
@@ -142,5 +127,4 @@ function Login() {
         </AuthLayout>
     );
 }
-
 export default Login;

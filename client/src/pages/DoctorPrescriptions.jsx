@@ -5,15 +5,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FileText, Plus, Search, User, Pill, X, Save, Clock, AlertCircle, Calendar, Download, Printer, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import DashboardSidebar from '../components/DashboardSidebar';
-
 function DoctorPrescriptions() {
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
     const [searchParams] = useSearchParams();
-
     const [patients, setPatients] = useState([]);
     const [selectedPatientId, setSelectedPatientId] = useState(searchParams.get('patientId') || '');
-
     const [isCreating, setIsCreating] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingPrescriptionId, setEditingPrescriptionId] = useState(null);
@@ -21,13 +18,11 @@ function DoctorPrescriptions() {
     const [selectedPrescription, setSelectedPrescription] = useState(null);
     const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-
     const [diagnosis, setDiagnosis] = useState('');
     const [instructions, setInstructions] = useState('');
     const [medicines, setMedicines] = useState([
         { name: '', dosage: '', frequency: '', duration: '', instructions: '' }
     ]);
-
     useEffect(() => {
         if (!user || user.role !== 'doctor') {
             navigate('/login');
@@ -36,58 +31,48 @@ function DoctorPrescriptions() {
         fetchPatients();
         fetchPrescriptions();
     }, [user, navigate]);
-
     useEffect(() => {
-        if (selectedPatientId) {
-
-        }
+        if (selectedPatientId) 
     }, [selectedPatientId]);
-
     const fetchPatients = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/auth/patients', { withCredentials: true });
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/patients`, { withCredentials: true });
             setPatients(res.data);
         } catch (err) {
             console.error(err);
             toast.error("Failed to load patients");
         }
     };
-
     const fetchPrescriptions = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/prescriptions', { withCredentials: true });
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/prescriptions`, { withCredentials: true });
             setPrescriptions(res.data);
         } catch (err) {
             console.error(err);
             toast.error("Failed to load prescriptions");
         }
     };
-
     const handleAddMedicine = () => {
         setMedicines([...medicines, { name: '', dosage: '', frequency: '', duration: '', instructions: '' }]);
     };
-
     const handleRemoveMedicine = (index) => {
         const newMeds = [...medicines];
         newMeds.splice(index, 1);
         setMedicines(newMeds);
     };
-
     const handleMedicineChange = (index, field, value) => {
         const newMeds = [...medicines];
         newMeds[index][field] = value;
         setMedicines(newMeds);
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!selectedPatientId) return toast.error("Please select a patient");
         if (!diagnosis) return toast.error("Diagnosis is required");
         if (medicines.some(m => !m.name)) return toast.error("Medicine name is required");
-
         try {
             if (isEditing && editingPrescriptionId) {
-                await axios.put(`http://localhost:5000/api/prescriptions/${editingPrescriptionId}`, {
+                await axios.put(`${import.meta.env.VITE_API_URL}/api/prescriptions/${editingPrescriptionId}`, {
                     patientId: selectedPatientId,
                     diagnosis,
                     medicines,
@@ -97,7 +82,7 @@ function DoctorPrescriptions() {
                 setIsEditing(false);
                 setEditingPrescriptionId(null);
             } else {
-                await axios.post('http://localhost:5000/api/prescriptions', {
+                await axios.post(`${import.meta.env.VITE_API_URL}/api/prescriptions`, {
                     patientId: selectedPatientId,
                     diagnosis,
                     medicines,
@@ -105,19 +90,15 @@ function DoctorPrescriptions() {
                 }, { withCredentials: true });
                 toast.success("Prescription created successfully");
             }
-
             setIsCreating(false);
             fetchPrescriptions();
-
             setDiagnosis('');
             setInstructions('');
             setMedicines([{ name: '', dosage: '', frequency: '', duration: '', instructions: '' }]);
-
         } catch (error) {
             toast.error(isEditing ? "Failed to update prescription" : "Failed to create prescription");
         }
     };
-
     const handleEdit = (pres) => {
         setIsEditing(true);
         setEditingPrescriptionId(pres._id);
@@ -127,10 +108,9 @@ function DoctorPrescriptions() {
         setMedicines(pres.medicines);
         setIsCreating(true);
     };
-
     const handleDelete = async (prescriptionId) => {
         try {
-            await axios.delete(`http://localhost:5000/api/prescriptions/${prescriptionId}`, { withCredentials: true });
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/prescriptions/${prescriptionId}`, { withCredentials: true });
             toast.success("Prescription deleted successfully");
             setDeleteConfirmId(null);
             fetchPrescriptions();
@@ -138,7 +118,6 @@ function DoctorPrescriptions() {
             toast.error(error.response?.data?.message || "Failed to delete prescription");
         }
     };
-
     const handleCancelEdit = () => {
         setIsCreating(false);
         setIsEditing(false);
@@ -147,41 +126,31 @@ function DoctorPrescriptions() {
         setInstructions('');
         setMedicines([{ name: '', dosage: '', frequency: '', duration: '', instructions: '' }]);
     };
-
     const handlePrint = () => {
         const prescription = document.getElementById('printable-prescription');
         if (!prescription) return;
-
         const existingContainer = document.getElementById('print-container');
         if (existingContainer) {
             existingContainer.remove();
         }
-
         const printContainer = document.createElement('div');
         printContainer.id = 'print-container';
         printContainer.style.display = 'none';
-
         printContainer.innerHTML = prescription.innerHTML;
         document.body.appendChild(printContainer);
-
         window.print();
-
         setTimeout(() => {
             const container = document.getElementById('print-container');
             if (container) container.remove();
         }, 100);
     };
-
     const filteredPrescriptions = selectedPatientId
         ? prescriptions.filter(p => p.patientId?._id === selectedPatientId || p.patientId === selectedPatientId)
         : [];
-
     const selectedPatient = patients.find(p => p._id === selectedPatientId);
-
     return (
         <div className="min-h-screen flex font-sans bg-gray-50">
             <DashboardSidebar role="doctor" />
-
             <div className="flex-1 p-8 ml-20 transition-all duration-300">
                 <header className="mb-8 flex justify-between items-center">
                     <div>
@@ -201,9 +170,7 @@ function DoctorPrescriptions() {
                         </button>
                     )}
                 </header>
-
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    { }
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <label className="block text-sm font-medium text-gray-700 mb-2">Select Patient</label>
@@ -241,8 +208,6 @@ function DoctorPrescriptions() {
                             )}
                         </div>
                     </div>
-
-                    { }
                     <div className="lg:col-span-3">
                         {!selectedPatientId ? (
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
@@ -256,7 +221,6 @@ function DoctorPrescriptions() {
                                     <button onClick={handleCancelEdit} className="text-gray-400 hover:text-gray-600"><X size={24} /></button>
                                 </div>
                                 <form onSubmit={handleSubmit} className="space-y-6">
-                                    { }
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Diagnosis</label>
                                         <input
@@ -268,8 +232,6 @@ function DoctorPrescriptions() {
                                             required
                                         />
                                     </div>
-
-                                    { }
                                     <div>
                                         <div className="flex justify-between items-center mb-2">
                                             <label className="block text-sm font-medium text-gray-700">Medicines</label>
@@ -339,8 +301,6 @@ function DoctorPrescriptions() {
                                             ))}
                                         </div>
                                     </div>
-
-                                    { }
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">General Advice / Notes</label>
                                         <textarea
@@ -351,7 +311,6 @@ function DoctorPrescriptions() {
                                             placeholder="Rest, diet, follow-up..."
                                         />
                                     </div>
-
                                     <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                                         <button
                                             type="button"
@@ -418,7 +377,6 @@ function DoctorPrescriptions() {
                                                     </button>
                                                 </div>
                                             </div>
-
                                             <div className="space-y-3 mb-4">
                                                 {pres.medicines.map((med, idx) => (
                                                     <div key={idx} className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded">
@@ -433,16 +391,14 @@ function DoctorPrescriptions() {
                                                     </div>
                                                 ))}
                                             </div>
-
                                             {pres.instructions && (
                                                 <div className="flex items-start text-sm text-amber-700 bg-amber-50 p-3 rounded-lg">
                                                     <AlertCircle size={16} className="mr-2 mt-0.5 flex-shrink-0" />
                                                     <p>{pres.instructions}</p>
                                                 </div>
                                             )}
-
                                             <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
-                                                <span>Doctor: {(pres.doctorId?.name || 'Unattributed').replace(/^Dr\.?\s+/i, '')} (ID: {pres.doctorId?.doctorId || 'N/A'})</span>
+                                                <span>Doctor: {pres.doctorId?.name || 'Unknown'} (ID: {pres.doctorId?.doctorId || 'N/A'})</span>
                                                 <span>Prescription ID: {pres._id.slice(-8)}</span>
                                             </div>
                                         </div>
@@ -453,8 +409,6 @@ function DoctorPrescriptions() {
                     </div>
                 </div>
             </div>
-
-            { }
             {isPrintModalOpen && selectedPrescription && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm no-print">
                     <div className="bg-gray-100 rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden">
@@ -476,14 +430,12 @@ function DoctorPrescriptions() {
                                 </button>
                             </div>
                         </div>
-
                         <div className="overflow-y-auto flex-1 p-8 bg-gray-50">
                             <div
                                 id="printable-prescription"
                                 className="bg-white p-8 mx-auto shadow-sm max-w-[210mm] min-h-[297mm]"
                                 style={{ width: '100%', maxWidth: '800px' }}
                             >
-                                { }
                                 <div className="flex justify-between items-start border-b-2 border-blue-600 pb-6 mb-8">
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">M</div>
@@ -493,13 +445,11 @@ function DoctorPrescriptions() {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <h2 className="text-lg font-bold text-gray-900">{(selectedPrescription.doctorId?.name || 'Unknown Doctor').replace(/^Dr\.?\s+/i, '')}</h2>
+                                        <h2 className="text-lg font-bold text-gray-900">{selectedPrescription.doctorId?.name || 'Unknown Doctor'}</h2>
                                         <p className="text-sm text-blue-600 font-medium">{selectedPrescription.doctorId?.specialization || 'N/A'}</p>
                                         <p className="text-xs text-gray-500 mt-1">{selectedPrescription.doctorId?.email || 'N/A'}</p>
                                     </div>
                                 </div>
-
-                                { }
                                 <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-100">
                                     <div className="grid grid-cols-2 gap-y-4 text-sm">
                                         <div>
@@ -520,8 +470,6 @@ function DoctorPrescriptions() {
                                         </div>
                                     </div>
                                 </div>
-
-                                { }
                                 <div className="mb-8">
                                     <h3 className="text-sm font-bold text-gray-900 uppercase border-b border-gray-200 pb-2 mb-4 flex items-center gap-2">
                                         <Pill size={16} /> Prescribed Medicines
@@ -547,8 +495,6 @@ function DoctorPrescriptions() {
                                         </tbody>
                                     </table>
                                 </div>
-
-                                { }
                                 {selectedPrescription.instructions && (
                                     <div className="mb-12">
                                         <h3 className="text-sm font-bold text-gray-900 uppercase border-b border-gray-200 pb-2 mb-4 flex items-center gap-2">
@@ -559,24 +505,19 @@ function DoctorPrescriptions() {
                                         </div>
                                     </div>
                                 )}
-
-                                { }
                                 <div className="mt-12 pt-8 border-t border-gray-200 flex justify-between items-end">
                                     <div className="text-xs text-gray-400">
                                         <p>Generated by MediTrack Digital Health System</p>
                                         <p>{new Date(selectedPrescription.createdAt).toLocaleString()}</p>
                                     </div>
                                     <div className="text-center">
-                                        { }
                                         <div className="text-2xl text-blue-900 mb-1 font-bold italic" style={{ fontFamily: 'cursive' }}>
-                                            {(selectedPrescription?.doctorId?.name || 'Unknown Signature').replace(/^Dr\.?\s+/i, '')}
+                                            {selectedPrescription?.doctorId?.name || 'Unknown Signature'}
                                         </div>
                                         <div className="h-px w-32 bg-gray-300 mb-1 mx-auto"></div>
                                         <p className="text-xs text-gray-500 uppercase font-bold">Signature</p>
                                     </div>
                                 </div>
-
-                                { }
                                 <div className="mt-8 pt-4 border-t border-gray-100 text-center">
                                     <p className="text-xs text-gray-400">This is a digitally generated prescription. Valid without physical signature in accordance with IT Act.</p>
                                 </div>
@@ -589,18 +530,13 @@ function DoctorPrescriptions() {
                                 margin: 0;
                                 size: A4 portrait;
                             }
-                            
                             body {
                                 margin: 0;
                                 padding: 0;
                             }
-                            
-                            
                             body > * {
                                 display: none !important;
                             }
-                            
-                            
                             #print-container {
                                 display: block !important;
                                 position: relative !important;
@@ -610,8 +546,6 @@ function DoctorPrescriptions() {
                                 padding: 20px !important;
                                 background: white !important;
                             }
-                            
-                            /* Ensure colors print */
                             * {
                                 -webkit-print-color-adjust: exact !important;
                                 print-color-adjust: exact !important;
@@ -621,8 +555,6 @@ function DoctorPrescriptions() {
                     `}</style>
                 </div>
             )}
-
-            {/* Delete Confirmation Modal */}
             {deleteConfirmId && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
@@ -658,5 +590,4 @@ function DoctorPrescriptions() {
         </div>
     );
 }
-
 export default DoctorPrescriptions;

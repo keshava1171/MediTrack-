@@ -8,11 +8,9 @@ const {
     updatePrescription,
     deletePrescription
 } = require('../controllers/prescriptionController');
-
 router.post('/', protect, createPrescription);
 router.get('/', protect, getPrescriptions);
 router.get('/:id', protect, getPrescriptionById);
 router.put('/:id', protect, updatePrescription);
 router.delete('/:id', protect, deletePrescription);
-
 module.exports = router;

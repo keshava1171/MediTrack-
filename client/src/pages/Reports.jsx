@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { Trash2, Download, FileText, Filter, Upload, File, Image as ImageIcon, Eye, Pencil, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import FilePreviewModal from '../components/FilePreviewModal';
-
 const uploadReducer = (state, action) => {
     switch (action.type) {
         case 'START':
@@ -20,35 +19,29 @@ const uploadReducer = (state, action) => {
             return state;
     }
 };
-
 function Reports() {
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
     const fileInputRef = useRef(null);
-
     const [uploadState, dispatch] = useReducer(uploadReducer, {
         uploading: false,
         error: null,
         success: false,
         message: ''
     });
-
     const [reports, setReports] = useState([]);
     const [filterText, setFilterText] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [previewFile, setPreviewFile] = useState(null);
     const [editingReport, setEditingReport] = useState(null);
-
     const [patientName, setPatientName] = useState('');
     const [category, setCategory] = useState('General');
     const [notes, setNotes] = useState('');
     const [visibility, setVisibility] = useState('Private');
-
     useEffect(() => {
         if (!user) navigate('/login');
         fetchReports();
     }, [user, navigate]);
-
     const fetchReports = async () => {
         try {
             const res = await axios.get('http://localhost:5000/api/reports', { withCredentials: true });
@@ -58,24 +51,19 @@ function Reports() {
             toast.error('Failed to load reports');
         }
     };
-
     const handleUpload = useCallback(async (e) => {
         e.preventDefault();
-
         if (!fileInputRef.current.files[0]) {
             dispatch({ type: 'ERROR', payload: 'Please select a file' });
             return;
         }
-
         const formData = new FormData();
         formData.append('file', fileInputRef.current.files[0]);
         formData.append('patientName', user?.name || 'Unknown'); 
         formData.append('category', category);
         formData.append('notes', notes);
         formData.append('visibility', visibility);
-
         dispatch({ type: 'START' });
-
         try {
             await axios.post('http://localhost:5000/api/reports', formData, {
                 withCredentials: true,
@@ -88,26 +76,21 @@ function Reports() {
             setNotes('');
             setVisibility('Private');
             fileInputRef.current.value = '';
-
             if (window.confirm('Report Uploaded! Do you want to notify your assigned doctor?')) {
                 handleNotifyDoctor();
             }
-
         } catch (err) {
             dispatch({ type: 'ERROR', payload: err.response?.data?.message || 'Upload failed' });
             toast.error('Upload failed');
         }
     }, [category, notes, visibility, user]);
-
     const handleNotifyDoctor = async () => {
         try {
-
             toast.success('Doctor notified (Simulated)');
         } catch (e) {
             toast.error('Failed to notify');
         }
     };
-
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this report?')) return;
         try {
@@ -119,7 +102,6 @@ function Reports() {
             toast.error('Failed to delete report');
         }
     };
-
     const handleUpdateReport = async (e) => {
         e.preventDefault();
         try {
@@ -128,7 +110,6 @@ function Reports() {
                 notes: editingReport.notes,
                 visibility: editingReport.visibility
             }, { withCredentials: true });
-
             setReports(reports.map(r => r._id === editingReport._id ? res.data : r));
             toast.success('Report updated');
             setEditingReport(null);
@@ -136,35 +117,28 @@ function Reports() {
             toast.error('Failed to update report');
         }
     };
-
     const handlePreview = (report) => {
         const fileUrl = `http://localhost:5000/api/reports/${report._id}/download`;
         const type = report.originalName.match(/\.(jpg|jpeg|png|gif)$/i) ? 'image' :
             report.originalName.match(/\.pdf$/i) ? 'application/pdf' : 'file';
-
         setPreviewFile({
             url: fileUrl,
             name: report.originalName,
             type: type
         });
     };
-
     const filteredReports = useMemo(() => {
         return reports.filter(r => {
             const matchesText =
                 (r.originalName && r.originalName.toLowerCase().includes(filterText.toLowerCase())) ||
                 (r.notes && r.notes.toLowerCase().includes(filterText.toLowerCase()));
-
             const matchesCategory = categoryFilter === 'All' || r.category === categoryFilter;
-
             return matchesText && matchesCategory;
         });
     }, [reports, filterText, categoryFilter]);
-
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto">
-                {}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <div className="flex items-center gap-4">
                         <button
@@ -184,9 +158,7 @@ function Reports() {
                         </div>
                     </div>
                 </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {}
                     <div className="lg:col-span-1">
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 sticky top-24">
                             <h2 className="text-lg font-bold mb-4 flex items-center text-gray-700">
@@ -246,9 +218,7 @@ function Reports() {
                                         <p className="text-sm text-green-600 mt-2 text-center truncate">Selected: {fileInputRef.current.files[0].name}</p>
                                     )}
                                 </div>
-
                                 {uploadState.error && <p className="text-red-500 text-sm bg-red-50 p-2 rounded">{uploadState.error}</p>}
-
                                 <button
                                     type="submit"
                                     disabled={uploadState.uploading}
@@ -262,8 +232,6 @@ function Reports() {
                             </form>
                         </div>
                     </div>
-
-                    {}
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
                             <div className="relative w-full sm:w-64">
@@ -291,7 +259,6 @@ function Reports() {
                                 ))}
                             </div>
                         </div>
-
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
@@ -334,7 +301,6 @@ function Reports() {
                                                                     {report.uploadedBy?.role === 'doctor' ? 'Doctor' : report.uploadedBy?.role}
                                                                 </span>
                                                             )}
-                                                            {/* Show Doctor ID or Specialization */}
                                                             {report.uploadedBy?.role === 'doctor' && (
                                                                 <span className="text-xs text-gray-500 ml-2">
                                                                     {report.uploadedBy?.specialization || `ID: ${report.uploadedBy?.doctorId || 'N/A'}`}
@@ -360,8 +326,6 @@ function Reports() {
                                                         >
                                                             <Download size={16} />
                                                         </button>
-
-                                                        {/* Only delete/edit own reports */}
                                                         {(report.uploadedBy?._id?.toString() === user?.id || report.uploadedBy === user?.id) && (
                                                             <>
                                                                 <button
@@ -398,8 +362,6 @@ function Reports() {
                     </div>
                 </div>
             </div>
-
-            {/* Edit Modal */}
             {editingReport && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
@@ -462,7 +424,6 @@ function Reports() {
                     </div>
                 </div>
             )}
-
             <FilePreviewModal
                 isOpen={!!previewFile}
                 onClose={() => setPreviewFile(null)}
@@ -473,5 +434,4 @@ function Reports() {
         </div>
     );
 }
-
 export default Reports;

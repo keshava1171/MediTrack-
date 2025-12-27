@@ -4,27 +4,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-
 const AdminReports = () => {
     const { user } = useSelector((state) => state.auth);
     const navigate = useNavigate();
-
     const [reports, setReports] = useState([]);
     const [stats, setStats] = useState({ global: { totalSize: 0, count: 0 }, topPatients: [] });
     const [loading, setLoading] = useState(true);
-
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState(''); 
     const [typeFilter, setTypeFilter] = useState(''); 
-
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8; 
-
     const [selectedReport, setSelectedReport] = useState(null);
     const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
     const [flagReason, setFlagReason] = useState('');
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-
     useEffect(() => {
         if (!user || user.role !== 'admin') {
             navigate('/admin/login');
@@ -33,27 +27,21 @@ const AdminReports = () => {
         fetchReports();
         fetchStats();
     }, [user, navigate]);
-
     const fetchReports = async () => {
         try {
-            
             const params = new URLSearchParams();
             if (searchTerm) params.append('search', searchTerm);
             if (statusFilter) params.append('status', statusFilter);
             if (typeFilter) params.append('type', typeFilter);
-
             const res = await fetch(`http://localhost:5000/api/reports/admin/all?${params.toString()}`, {
                 credentials: 'include' 
             });
-
             if (res.status === 401) {
                 toast.error('Session expired. Please login again.');
                 navigate('/admin/login');
                 return;
             }
-
             if (!res.ok) throw new Error('Failed to fetch reports');
-
             const data = await res.json();
             if (Array.isArray(data)) {
                 setReports(data);
@@ -68,7 +56,6 @@ const AdminReports = () => {
             setLoading(false);
         }
     };
-
     const fetchStats = async () => {
         try {
             const res = await fetch('http://localhost:5000/api/reports/admin/stats', {
@@ -82,7 +69,6 @@ const AdminReports = () => {
             console.error(error);
         }
     };
-
     const handleFlag = async () => {
         if (!selectedReport) return;
         try {
@@ -94,7 +80,6 @@ const AdminReports = () => {
                 credentials: 'include',
                 body: JSON.stringify({ reason: flagReason })
             });
-
             if (res.ok) {
                 toast.success('Report updated');
                 setIsFlagModalOpen(false);
@@ -104,7 +89,6 @@ const AdminReports = () => {
             toast.error('Action failed');
         }
     };
-
     const handleUnflag = async (id) => {
         try {
             const res = await fetch(`http://localhost:5000/api/reports/admin/${id}/flag`, {
@@ -115,7 +99,6 @@ const AdminReports = () => {
                 credentials: 'include',
                 body: JSON.stringify({ reason: null }) 
             });
-
             if (res.ok) {
                 toast.success('Report unflagged (Active)');
                 fetchReports();
@@ -124,13 +107,10 @@ const AdminReports = () => {
             toast.error('Action failed');
         }
     };
-
     const handleArchive = async (id, currentStatus) => {
         const isArchiving = currentStatus !== 'Archived';
         const action = isArchiving ? 'Archive' : 'Unarchive';
-
         if (!window.confirm(`${action} this report? ${isArchiving ? 'It will be hidden from normal views.' : 'It will be visible again.'}`)) return;
-
         try {
             const res = await fetch(`http://localhost:5000/api/reports/admin/${id}/archive`, {
                 method: 'PATCH',
@@ -144,17 +124,14 @@ const AdminReports = () => {
             toast.error('Action failed');
         }
     };
-
     useEffect(() => {
         const timeout = setTimeout(() => {
             fetchReports();
         }, 500);
         return () => clearTimeout(timeout);
     }, [searchTerm, statusFilter, typeFilter]);
-
     const totalPages = Math.ceil(reports.length / itemsPerPage);
     const displayedReports = reports.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
     const formatBytes = (bytes) => {
         if (!bytes) return '0 B';
         const k = 1024;
@@ -162,7 +139,6 @@ const AdminReports = () => {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
-
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto">
@@ -181,8 +157,6 @@ const AdminReports = () => {
                         <p className="text-gray-500 mt-1">Monitor, audit, and manage system-wide medical archives.</p>
                     </div>
                 </div>
-
-                {}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
                         <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
@@ -214,8 +188,6 @@ const AdminReports = () => {
                         </div>
                     </div>
                 </div>
-
-                {}
                 <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-6">
                     <h3 className="text-sm font-semibold text-gray-800 mb-3">Report Status Guide</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -248,10 +220,7 @@ const AdminReports = () => {
                         </div>
                     </div>
                 </div>
-
-                {}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    {}
                     <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center bg-gray-50/50">
                         <div className="relative flex-1 w-full md:w-auto">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -285,8 +254,6 @@ const AdminReports = () => {
                             </select>
                         </div>
                     </div>
-
-                    {}
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -347,7 +314,6 @@ const AdminReports = () => {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex justify-end items-center gap-2">
-                                                    {}
                                                     <button
                                                         onClick={() => { setSelectedReport(report); setIsPreviewModalOpen(true); }}
                                                         className="p-1 text-gray-500 hover:text-blue-600 transition"
@@ -355,15 +321,11 @@ const AdminReports = () => {
                                                     >
                                                         <Eye size={18} />
                                                     </button>
-
-                                                    {}
                                                     <button
                                                         onClick={() => {
                                                             if (report.status === 'Flagged') {
-                                                                
                                                                 if (window.confirm('Unflag this report? It will become active again.')) {
                                                                     setSelectedReport(report); 
-
                                                                     handleUnflag(report._id);
                                                                 }
                                                             } else {
@@ -376,8 +338,6 @@ const AdminReports = () => {
                                                     >
                                                         <Flag size={18} className={report.status === 'Flagged' ? "fill-current" : ""} />
                                                     </button>
-
-                                                    {}
                                                     <button
                                                         onClick={() => handleArchive(report._id, report.status)}
                                                         className={`p-1 transition ${report.status === 'Archived' ? 'text-blue-500 hover:text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}
@@ -399,8 +359,6 @@ const AdminReports = () => {
                             </tbody>
                         </table>
                     </div>
-
-                    {}
                     <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/30">
                         <span className="text-sm text-gray-500">Showing {displayedReports.length} of {reports.length} reports</span>
                         <div className="flex gap-2">
@@ -422,8 +380,6 @@ const AdminReports = () => {
                     </div>
                 </div>
             </div>
-
-            {}
             <AnimatePresence>
                 {isFlagModalOpen && (
                     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -465,8 +421,6 @@ const AdminReports = () => {
                     </div>
                 )}
             </AnimatePresence>
-
-            {}
             <AnimatePresence>
                 {isPreviewModalOpen && selectedReport && (
                     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -482,7 +436,6 @@ const AdminReports = () => {
                                     <p className="text-xs text-gray-500">ID: {selectedReport._id}</p>
                                 </div>
                                 <div className="flex gap-2">
-                                    {}
                                     <a
                                         href={`http://localhost:5000/api/reports/${selectedReport._id}/download`}
                                         className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
@@ -494,7 +447,6 @@ const AdminReports = () => {
                                     </button>
                                 </div>
                             </div>
-
                             <div className="flex-1 bg-gray-100 p-4 overflow-auto flex items-center justify-center">
                                 {selectedReport.mimeType?.startsWith('image') ? (
                                     <img
@@ -521,7 +473,6 @@ const AdminReports = () => {
                                     </div>
                                 )}
                             </div>
-
                             <div className="p-4 border-t border-gray-100 bg-white">
                                 <h4 className="text-sm font-semibold text-gray-900 mb-2">Audit Metadata</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-600">
@@ -555,5 +506,4 @@ const AdminReports = () => {
         </div>
     );
 };
-
 export default AdminReports;

@@ -5,32 +5,26 @@ import { LogOut, LayoutDashboard, User, MessageSquare, FileText, Menu, X, Home, 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationBell from './NotificationBell';
-
 function Navbar() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const [isOpen, setIsOpen] = useState(false);
-
     const onLogout = () => {
         dispatch(logout());
         dispatch(reset());
         navigate('/');
         setIsOpen(false);
     };
-
     return (
         <>
-            {}
             <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 w-full z-50 border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex items-center gap-4">
-                            {}
                             <button onClick={() => setIsOpen(!isOpen)} className="text-gray-600 hover:text-gray-900 focus:outline-none p-2 rounded-md hover:bg-gray-100 transition">
                                 {isOpen ? <X size={24} /> : <Menu size={24} />}
                             </button>
-
                             <Link to="/" className="flex items-center space-x-2 group">
                                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg group-hover:bg-blue-700 transition">
                                     <Home size={20} />
@@ -38,14 +32,11 @@ function Navbar() {
                                 <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-teal-500">MediTrack</span>
                             </Link>
                         </div>
-
-                        {}
                         <div className="flex items-center space-x-4">
                             {user ? (
                                 <div className="flex items-center gap-3">
                                     <NotificationBell />
                                     <span className="text-sm font-medium text-gray-700 hidden sm:block">Welcome, {user.name}</span>
-
                                     <Link to="/profile" className="relative cursor-pointer group">
                                         <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 p-[2px] transition-transform group-hover:scale-105">
                                             <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
@@ -70,8 +61,6 @@ function Navbar() {
                         </div>
                     </div>
                 </div>
-
-                {}
                 <AnimatePresence>
                     {isOpen && (
                         <motion.div
@@ -125,5 +114,4 @@ function Navbar() {
         </>
     );
 }
-
 export default Navbar;

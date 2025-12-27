@@ -1,10 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-
 const initialState = {
     alerts: [],
     unreadCount: 0,
 };
-
 export const alertSlice = createSlice({
     name: 'alerts',
     initialState,
@@ -15,7 +13,6 @@ export const alertSlice = createSlice({
         },
         markAllAsRead: (state) => {
             state.unreadCount = 0;
-            
             state.alerts.forEach(alert => alert.isRead = true);
         },
         addNewAlert: (state, action) => {
@@ -28,6 +25,5 @@ export const alertSlice = createSlice({
         }
     },
 });
-
 export const { addAlert, markAllAsRead, addNewAlert, clearAlerts } = alertSlice.actions;
 export default alertSlice.reducer;

@@ -5,7 +5,6 @@ import { login, reset } from '../features/auth/authSlice';
 import { ShieldCheck, Lock, Users, FileText, Activity, Server, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-
 function AdminLogin() {
     const [formData, setFormData] = useState({
         email: '',
@@ -13,21 +12,16 @@ function AdminLogin() {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
-
     const { email, password } = formData;
-
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
     const { user, isLoading, isError, isSuccess, message } = useSelector(
         (state) => state.auth
     );
-
     useEffect(() => {
         if (isError) {
             toast.error(message || "Login failed");
         }
-
         if (isSuccess && user) {
             if (user.role === 'admin') {
                 toast.success("Welcome Admin");
@@ -36,39 +30,29 @@ function AdminLogin() {
                 toast.error("Access Denied: Not an Admin");
             }
         }
-
         if (user && !isSuccess) {
             if (user.role === 'admin') {
                 navigate('/dashboard');
             }
         }
-
         return () => { dispatch(reset()); }
     }, [user, isError, isSuccess, message, navigate, dispatch]);
-
     const onChange = (e) => {
         setFormData((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
         }));
     };
-
     const onSubmit = (e) => {
         e.preventDefault();
         dispatch(login({ email, password, rememberMe }));
     };
-
     return (
         <div className="min-h-screen flex bg-slate-900 font-mono text-slate-200">
-            <Toaster position="top-center" />
-
-            {}
             <div className="hidden lg:flex w-1/2 bg-slate-800 flex-col justify-between p-12 border-r border-slate-700 relative overflow-hidden">
-                {}
                 <div className="absolute top-0 right-0 p-12 opacity-5">
                     <ShieldCheck size={400} />
                 </div>
-
                 <div className="z-10">
                     <div className="flex items-center gap-3 mb-8">
                         <div className="w-10 h-10 bg-blue-600 rounded flex items-center justify-center text-white">
@@ -76,7 +60,6 @@ function AdminLogin() {
                         </div>
                         <h1 className="text-2xl font-bold tracking-wider text-white">SYSTEM CONTROL</h1>
                     </div>
-
                     <div className="space-y-8">
                         <div>
                             <h2 className="text-sm text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-700 pb-2">Administrative Capabilities</h2>
@@ -103,7 +86,6 @@ function AdminLogin() {
                                 ))}
                             </ul>
                         </div>
-
                         <div className="bg-slate-900/50 p-4 rounded border border-slate-700">
                             <div className="flex items-center gap-2 mb-2 text-yellow-500 text-xs font-bold uppercase">
                                 <AlertTriangle size={14} /> System Status
@@ -129,14 +111,11 @@ function AdminLogin() {
                         </div>
                     </div>
                 </div>
-
                 <div className="text-xs text-slate-600 z-10">
                     <p>Authorized Personnel Only</p>
                     <p>Access is monitored and logged.</p>
                 </div>
             </div>
-
-            {}
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-900">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -148,7 +127,6 @@ function AdminLogin() {
                         <h2 className="text-2xl font-bold text-white">Security Clearance</h2>
                         <p className="text-slate-400 text-sm mt-1">Identify yourself to proceed</p>
                     </div>
-
                     <form onSubmit={onSubmit} className="space-y-6">
                         <div>
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Admin Identifier</label>
@@ -167,7 +145,6 @@ function AdminLogin() {
                                 />
                             </div>
                         </div>
-
                         <div>
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Access Key</label>
                             <div className="relative group">
@@ -193,7 +170,6 @@ function AdminLogin() {
                                 </button>
                             </div>
                         </div>
-
                         <button
                             type="submit"
                             disabled={isLoading}
@@ -208,7 +184,6 @@ function AdminLogin() {
                             )}
                         </button>
                     </form>
-
                     <div className="mt-6 text-center border-t border-slate-700 pt-4">
                         <Link to="/" className="text-slate-500 hover:text-slate-300 text-xs transition">
                             ← Return to Public Portal
@@ -219,5 +194,4 @@ function AdminLogin() {
         </div>
     );
 }
-
 export default AdminLogin;

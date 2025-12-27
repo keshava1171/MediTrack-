@@ -7,7 +7,6 @@ import {
     LogOut, Home, Menu, ArrowLeft, Shield, Pill
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
 const SidebarItem = ({ icon: Icon, label, active, onClick, expanded }) => (
     <div
         onClick={onClick}
@@ -27,19 +26,16 @@ const SidebarItem = ({ icon: Icon, label, active, onClick, expanded }) => (
         )}
     </div>
 );
-
 const AdminSidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-
     const searchParams = new URLSearchParams(location.search);
     const currentTab = searchParams.get('tab') || 'Overview';
     const isDashboard = location.pathname === '/admin/dashboard';
     const isReports = location.pathname === '/admin/reports';
-
     const handleNavigation = (path, tab) => {
         if (tab) {
             navigate(`${path}?tab=${tab}`);
@@ -47,13 +43,11 @@ const AdminSidebar = () => {
             navigate(path);
         }
     };
-
     const onLogout = () => {
         dispatch(logout());
         dispatch(reset());
         navigate('/admin/login');
     };
-
     return (
         <motion.div
             initial={{ width: 80 }}
@@ -66,7 +60,6 @@ const AdminSidebar = () => {
                 <span className="text-blue-500 mr-2">M</span>
                 {isSidebarExpanded && <span>MEDADMIN</span>}
             </div>
-
             <div className="flex-1 py-6 overflow-y-auto overflow-x-hidden">
                 <div className="px-4 mb-2">
                     <button
@@ -76,9 +69,7 @@ const AdminSidebar = () => {
                         <Home size={16} /> {isSidebarExpanded && <span>Home</span>}
                     </button>
                 </div>
-
                 <div className={`px-6 mt-6 mb-2 text-xs font-semibold text-gray-500 uppercase ${!isSidebarExpanded && 'hidden'}`}>Main Menu</div>
-
                 <SidebarItem
                     icon={LayoutDashboard}
                     label="Overview"
@@ -86,7 +77,6 @@ const AdminSidebar = () => {
                     onClick={() => handleNavigation('/admin/dashboard', 'Overview')}
                     expanded={isSidebarExpanded}
                 />
-
                 <SidebarItem
                     icon={Users}
                     label="Patients"
@@ -94,7 +84,6 @@ const AdminSidebar = () => {
                     onClick={() => handleNavigation('/admin/dashboard', 'Patients')}
                     expanded={isSidebarExpanded}
                 />
-
                 <SidebarItem
                     icon={Users}
                     label="Doctors"
@@ -102,7 +91,6 @@ const AdminSidebar = () => {
                     onClick={() => handleNavigation('/admin/dashboard', 'Doctors')}
                     expanded={isSidebarExpanded}
                 />
-
                 <SidebarItem
                     icon={FileText}
                     label="Medical Reports"
@@ -110,7 +98,6 @@ const AdminSidebar = () => {
                     onClick={() => handleNavigation('/admin/reports')}
                     expanded={isSidebarExpanded}
                 />
-
                 <SidebarItem
                     icon={Pill}
                     label="Prescriptions"
@@ -118,9 +105,7 @@ const AdminSidebar = () => {
                     onClick={() => handleNavigation('/admin/prescriptions')}
                     expanded={isSidebarExpanded}
                 />
-
                 <div className={`px-6 mt-8 mb-6 text-xs font-semibold text-gray-500 uppercase ${!isSidebarExpanded && 'hidden'}`}>System</div>
-
                 <SidebarItem
                     icon={Settings}
                     label="Settings"
@@ -129,7 +114,6 @@ const AdminSidebar = () => {
                     expanded={isSidebarExpanded}
                 />
             </div>
-
             <div className="p-4 border-t border-gray-800 shrink-0">
                 <button
                     onClick={onLogout}
@@ -143,5 +127,4 @@ const AdminSidebar = () => {
         </motion.div>
     );
 };
-
 export default AdminSidebar;

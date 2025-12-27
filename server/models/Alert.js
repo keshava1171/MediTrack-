@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const alertSchema = new mongoose.Schema({
     patient: {
         type: mongoose.Schema.Types.ObjectId,
@@ -28,5 +27,4 @@ const alertSchema = new mongoose.Schema({
         default: Date.now
     }
 });
-
 module.exports = mongoose.model('Alert', alertSchema);

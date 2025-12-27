@@ -1,5 +1,4 @@
 const ActivityLog = require('../models/ActivityLog');
-
 const logActivity = async (io, action, details = '', color = 'blue') => {
     try {
         const log = await ActivityLog.create({
@@ -8,7 +7,6 @@ const logActivity = async (io, action, details = '', color = 'blue') => {
             color,
             timestamp: new Date()
         });
-
         if (io) {
             io.emit('new_activity', log);
         }
@@ -16,5 +14,4 @@ const logActivity = async (io, action, details = '', color = 'blue') => {
         console.error('Failed to log activity:', err);
     }
 };
-
 module.exports = logActivity;

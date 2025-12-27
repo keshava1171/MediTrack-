@@ -5,12 +5,10 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { updateUser } from '../features/auth/authSlice';
-
 const Profile = () => {
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -19,10 +17,8 @@ const Profile = () => {
         address: '',
         password: ''
     });
-
     const [uploading, setUploading] = useState(false);
     const [updating, setUpdating] = useState(false);
-
     useEffect(() => {
         if (user) {
             setFormData({
@@ -35,18 +31,14 @@ const Profile = () => {
             navigate('/login');
         }
     }, [user, navigate]);
-
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
-
     const handlePhotoUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const uploadData = new FormData();
         uploadData.append('photo', file);
-
         setUploading(true);
         try {
             const res = await fetch('http://localhost:5000/api/auth/profile-photo', {
@@ -54,7 +46,6 @@ const Profile = () => {
                 credentials: 'include',
                 body: uploadData
             });
-
             if (!res.ok) {
                 const text = await res.text();
                 let errorMessage = 'Upload failed';
@@ -67,7 +58,6 @@ const Profile = () => {
                 toast.error(errorMessage);
                 return;
             }
-
             const data = await res.json();
             dispatch(updateUser(data));
             toast.success('Profile photo updated!');
@@ -78,7 +68,6 @@ const Profile = () => {
             setUploading(false);
         }
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setUpdating(true);
@@ -91,7 +80,6 @@ const Profile = () => {
                 credentials: 'include',
                 body: JSON.stringify(formData)
             });
-
             const data = await res.json();
             if (res.ok) {
                 dispatch(updateUser(data));
@@ -107,16 +95,13 @@ const Profile = () => {
             setUpdating(false);
         }
     };
-
     if (!user) return null;
-
     return (
         <div className="min-h-screen pt-4 pb-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
             <div className="max-w-full mx-auto">
                 <button
                     onClick={() => {
                         if (user?.role === 'doctor') navigate('/doctor-dashboard');
-
                         else if (user?.role === 'admin') navigate('/admin/dashboard');
                         else navigate('/health-dashboard');
                     }}
@@ -124,7 +109,6 @@ const Profile = () => {
                 >
                     <ArrowLeft size={20} className="mr-2" /> Back to Dashboard
                 </button>
-
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -138,7 +122,6 @@ const Profile = () => {
                             </div>
                         </div>
                     </div>
-
                     <div className="px-8 pb-8">
                         <div className="relative -mt-16 mb-6 flex justify-between items-end">
                             <div className="relative group">
@@ -161,7 +144,6 @@ const Profile = () => {
                                     </div>
                                 )}
                             </div>
-
                             {!isEditing && (
                                 <button
                                     onClick={() => setIsEditing(true)}
@@ -171,7 +153,6 @@ const Profile = () => {
                                 </button>
                             )}
                         </div>
-
                         <div className="text-center sm:text-left mb-8">
                             <h1 className="text-3xl font-bold text-gray-900">{user.name}</h1>
                             <p className="text-gray-500">{user.email}</p>
@@ -179,7 +160,6 @@ const Profile = () => {
                                 <p className="text-xs text-gray-400 font-mono mt-1">ID: {user.patientId}</p>
                             )}
                         </div>
-
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                 <div className="relative">
@@ -199,7 +179,6 @@ const Profile = () => {
                                         />
                                     </div>
                                 </div>
-
                                 <div className="relative">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                                     <div className="relative">
@@ -217,7 +196,6 @@ const Profile = () => {
                                         />
                                     </div>
                                 </div>
-
                                 <div className="relative">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
                                     <div className="relative">
@@ -235,7 +213,6 @@ const Profile = () => {
                                         />
                                     </div>
                                 </div>
-
                                 <div className="relative sm:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                                     <div className="relative">
@@ -253,7 +230,6 @@ const Profile = () => {
                                         />
                                     </div>
                                 </div>
-
                                 {isEditing && (
                                     <div className="relative sm:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Change Password (Optional)</label>
@@ -273,7 +249,6 @@ const Profile = () => {
                                     </div>
                                 )}
                             </div>
-
                             {isEditing && (
                                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
                                     <button
@@ -312,5 +287,4 @@ const Profile = () => {
         </div>
     );
 };
-
 export default Profile;

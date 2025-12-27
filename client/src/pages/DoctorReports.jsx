@@ -6,27 +6,21 @@ import { FileText, Upload, Download, Search, Filter, User, Calendar, Trash2, Pen
 import { toast } from 'react-hot-toast';
 import DashboardSidebar from '../components/DashboardSidebar';
 import FilePreviewModal from '../components/FilePreviewModal';
-
 function DoctorReports() {
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
     const fileInputRef = useRef(null);
-
     const [patients, setPatients] = useState([]);
     const [selectedPatientId, setSelectedPatientId] = useState('');
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
-
     const [filterCategory, setFilterCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
-
     const [uploadCategory, setUploadCategory] = useState('General');
     const [uploadNotes, setUploadNotes] = useState('');
-
     const [previewFile, setPreviewFile] = useState(null);
     const [editingReport, setEditingReport] = useState(null);
-
     useEffect(() => {
         if (!user || user.role !== 'doctor') {
             navigate('/login');
@@ -34,7 +28,6 @@ function DoctorReports() {
         }
         fetchPatients();
     }, [user, navigate]);
-
     useEffect(() => {
         if (selectedPatientId) {
             fetchPatientReports(selectedPatientId);
@@ -42,7 +35,6 @@ function DoctorReports() {
             setReports([]);
         }
     }, [selectedPatientId]);
-
     const fetchPatients = async () => {
         try {
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/patients`, { withCredentials: true });
@@ -53,11 +45,9 @@ function DoctorReports() {
             toast.error("Failed to load patients");
         }
     };
-
     const fetchPatientReports = async (patientId) => {
         setLoading(true);
         try {
-
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/reports`, { withCredentials: true });
             const allReports = res.data;
             console.log('--- Debug DoctorReports ---');
@@ -67,12 +57,10 @@ function DoctorReports() {
                 console.log('Sample Report PatientID:', allReports[0].patientId);
                 console.log('Sample Report Type:', typeof allReports[0].patientId);
             }
-
             const patientReports = allReports.filter(r => {
                 const pId = r.patientId?._id || r.patientId;
                 return pId?.toString() === patientId?.toString();
             });
-
             console.log('Filtered Reports:', patientReports.length);
             setReports(patientReports);
         } catch (err) {
@@ -82,19 +70,16 @@ function DoctorReports() {
             setLoading(false);
         }
     };
-
     const handleUpload = async (e) => {
         e.preventDefault();
         if (!fileInputRef.current.files[0]) return toast.error("Please select a file");
         if (!selectedPatientId) return toast.error("Please select a patient");
-
         const formData = new FormData();
         formData.append('file', fileInputRef.current.files[0]);
         formData.append('patientId', selectedPatientId);
         formData.append('category', uploadCategory);
         formData.append('notes', uploadNotes);
         formData.append('visibility', 'Doctor');
-
         setUploading(true);
         try {
             await axios.post(`${import.meta.env.VITE_API_URL}/api/reports`, formData, {
@@ -112,7 +97,6 @@ function DoctorReports() {
             setUploading(false);
         }
     };
-
     const getFilteredReports = () => {
         return reports.filter(r => {
             const matchesSearch = r.originalName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,19 +105,16 @@ function DoctorReports() {
             return matchesSearch && matchesCategory;
         });
     };
-
     const handlePreview = (report) => {
         const fileUrl = `${import.meta.env.VITE_API_URL}/api/reports/${report._id}/download`;
         const type = report.originalName.match(/\.(jpg|jpeg|png|gif)$/i) ? 'image' :
             report.originalName.match(/\.pdf$/i) ? 'application/pdf' : 'file';
-
         setPreviewFile({
             url: fileUrl,
             name: report.originalName,
             type: type
         });
     };
-
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this report?")) return;
         try {
@@ -144,7 +125,6 @@ function DoctorReports() {
             toast.error("Failed to delete report");
         }
     };
-
     const handleUpdateReport = async (e) => {
         e.preventDefault();
         try {
@@ -152,7 +132,6 @@ function DoctorReports() {
                 category: editingReport.category,
                 notes: editingReport.notes
             }, { withCredentials: true });
-
             setReports(reports.map(r => r._id === editingReport._id ? res.data : r));
             toast.success("Report updated");
             setEditingReport(null);
@@ -160,21 +139,16 @@ function DoctorReports() {
             toast.error("Failed to update report");
         }
     };
-
     const selectedPatient = patients.find(p => p._id === selectedPatientId);
-
     return (
         <div className="min-h-screen flex font-sans bg-gray-50">
             <DashboardSidebar role="doctor" />
-
             <div className="flex-1 p-8 ml-20 transition-all duration-300">
                 <header className="mb-8">
                     <h1 className="text-2xl font-bold text-gray-900">Patient Reports</h1>
                     <p className="text-gray-500">View and manage medical records for your patients</p>
                 </header>
-
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    { }
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <label className="block text-sm font-medium text-gray-700 mb-2">Select Patient</label>
@@ -191,7 +165,6 @@ function DoctorReports() {
                                     ))}
                                 </select>
                             </div>
-
                             {selectedPatient && (
                                 <div className="mt-6 pt-6 border-t border-gray-100">
                                     <div className="flex items-center gap-3">
@@ -222,8 +195,6 @@ function DoctorReports() {
                                 </div>
                             )}
                         </div>
-
-                        { }
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                                 <Upload size={18} className="text-blue-500" /> Upload Report
@@ -255,19 +226,15 @@ function DoctorReports() {
                                     <span className="text-xs text-gray-500 block">Click to select file</span>
                                     {fileInputRef.current?.files[0] && <span className="text-xs text-blue-600 font-medium truncate">{fileInputRef.current.files[0].name}</span>}
                                 </div>
-                                <input type="file" ref={fileInputRef} className="hidden" onChange={() => setUploading(false)} /> { }
-
+                                <input type="file" ref={fileInputRef} className="hidden" onChange={() => setUploading(false)} /> 
                                 <button disabled={uploading} type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50">
                                     {uploading ? 'Uploading...' : 'Upload Report'}
                                 </button>
                             </form>
                         </div>
                     </div>
-
-                    { }
                     <div className="lg:col-span-3">
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            { }
                             <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center bg-gray-50/50">
                                 <div className="flex gap-2 w-full sm:w-auto overflow-x-auto">
                                     {['All', 'General', 'Lab Result', 'Diagnosis', 'Prescription', 'Imaging', 'Blood Test'].map(cat => (
@@ -292,8 +259,6 @@ function DoctorReports() {
                                     />
                                 </div>
                             </div>
-
-                            { }
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
@@ -341,7 +306,6 @@ function DoctorReports() {
                                                                         {report.uploadedByRole === 'doctor' ? 'Doctor' : 'Patient'}
                                                                     </span>
                                                                 )}
-                                                                { }
                                                                 <span className="text-xs text-gray-400 ml-2 scale-90">
                                                                     ID: {(report.uploadedBy?.patientId || report.uploadedBy?.doctorId || 'N/A')}
                                                                 </span>
@@ -357,7 +321,6 @@ function DoctorReports() {
                                                         {new Date(report.createdAt).toLocaleDateString()}
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        { }
                                                         <div className="flex justify-end gap-2">
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); handlePreview(report) }}
@@ -396,7 +359,6 @@ function DoctorReports() {
                     </div>
                 </div>
             </div>
-
             <FilePreviewModal
                 isOpen={!!previewFile}
                 onClose={() => setPreviewFile(null)}
@@ -404,8 +366,6 @@ function DoctorReports() {
                 fileName={previewFile?.name}
                 fileType={previewFile?.type}
             />
-
-            { }
             {editingReport && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
@@ -464,5 +424,4 @@ function DoctorReports() {
         </div>
     );
 }
-
 export default DoctorReports;

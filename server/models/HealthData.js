@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const healthDataSchema = new mongoose.Schema({
     patient: {
         type: mongoose.Schema.Types.ObjectId,
@@ -32,5 +31,4 @@ const healthDataSchema = new mongoose.Schema({
         default: Date.now
     }
 });
-
 module.exports = mongoose.model('HealthData', healthDataSchema);

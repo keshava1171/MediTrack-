@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const systemSettingSchema = mongoose.Schema({
     key: {
         type: String,
@@ -16,5 +15,4 @@ const systemSettingSchema = mongoose.Schema({
 }, {
     timestamps: true
 });
-
 module.exports = mongoose.model('SystemSetting', systemSettingSchema);

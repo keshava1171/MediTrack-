@@ -3,12 +3,9 @@ const router = express.Router();
 const { getRecentActivities } = require('../controllers/activityController');
 const { createAlert, getAlerts, getPatientAlerts, markAlertRead } = require('../controllers/activityController');
 const { protect } = require('../middleware/authMiddleware');
-
 router.get('/', getRecentActivities);
-
 router.post('/alerts', protect, createAlert);
 router.get('/alerts', protect, getAlerts);
 router.get('/alerts/patient/:id', protect, getPatientAlerts);
 router.put('/alerts/:id/read', protect, markAlertRead);
-
 module.exports = router;

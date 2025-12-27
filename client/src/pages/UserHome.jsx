@@ -2,12 +2,9 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { LayoutDashboard, FileText, MessageSquare, User, Activity, Clock, Shield, Pill } from 'lucide-react';
 import { motion } from 'framer-motion';
-
 const UserHome = () => {
     const { user } = useSelector((state) => state.auth);
-
-    if (!user) return null; 
-
+    if (!user) return null;
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -17,16 +14,13 @@ const UserHome = () => {
             }
         }
     };
-
     const itemVariants = {
         hidden: { y: 20, opacity: 0 },
         visible: { y: 0, opacity: 1 }
     };
-
     return (
         <div className="min-h-screen bg-gray-50 pt-16 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-                {}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -43,29 +37,29 @@ const UserHome = () => {
                         <span className="text-blue-700 font-mono font-bold">
                             {user.role === 'doctor' ? (user.doctorId || 'Generating...') : user.role === 'admin' ? (user.adminId || 'ADM-001') : (user.patientId || 'Running Generation...')}
                         </span>
+                        {user.role === 'doctor' && user.specialization && (
+                            <span className="ml-3 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-md border border-blue-200">
+                                {user.specialization}
+                            </span>
+                        )}
                     </div>
-
-                    {}
                     {user?.assignedDoctors && user.assignedDoctors.length > 0 && (
                         <div className="mt-4 flex flex-wrap justify-center gap-3">
                             {user.assignedDoctors.map(doctor => (
                                 <span key={doctor._id} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white border border-gray-200 shadow-sm text-gray-700">
                                     <User size={14} className="mr-1.5 text-blue-500" />
-                                    Dr. {doctor.name}
+                                    Dr. {doctor.name} {doctor.specialization && <span className="text-gray-500 ml-1 text-xs">({doctor.specialization})</span>}
                                 </span>
                             ))}
                         </div>
                     )}
                 </motion.div>
-
-                {}
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
-                    {}
                     {user.role !== 'admin' && (
                         <motion.div variants={itemVariants} className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 group">
                             <Link to={user.role === 'doctor' ? "/doctor-dashboard" : "/health-dashboard"} className="block h-full">
@@ -77,8 +71,6 @@ const UserHome = () => {
                             </Link>
                         </motion.div>
                     )}
-
-                    {}
                     <motion.div variants={itemVariants} className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 group">
                         <Link to={user.role === 'admin' ? "/admin/reports" : "/reports"} className="block h-full">
                             <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mb-4 group-hover:scale-110 transition">
@@ -88,8 +80,6 @@ const UserHome = () => {
                             <p className="text-gray-500">Access and manage all your uploaded medical documents.</p>
                         </Link>
                     </motion.div>
-
-                    {}
                     {(user.role === 'admin' || user.role === 'patient' || user.role === 'doctor') && (
                         <motion.div variants={itemVariants} className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 group">
                             <Link
@@ -104,8 +94,6 @@ const UserHome = () => {
                             </Link>
                         </motion.div>
                     )}
-
-                    {}
                     <motion.div variants={itemVariants} className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 group">
                         <Link to="/chat" className="block h-full">
                             <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 mb-4 group-hover:scale-110 transition">
@@ -115,8 +103,6 @@ const UserHome = () => {
                             <p className="text-gray-500">Chat with your doctors and healthcare providers.</p>
                         </Link>
                     </motion.div>
-
-                    {}
                     <motion.div variants={itemVariants} className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 group">
                         <Link to="/profile" className="block h-full">
                             <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 mb-4 group-hover:scale-110 transition">
@@ -126,8 +112,6 @@ const UserHome = () => {
                             <p className="text-gray-500">Update your personal details, address, and photo.</p>
                         </Link>
                     </motion.div>
-
-                    {}
                     {user.role === 'admin' && (
                         <motion.div variants={itemVariants} className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 group relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-2 opacity-10">
@@ -143,9 +127,8 @@ const UserHome = () => {
                         </motion.div>
                     )}
                 </motion.div>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 };
-
 export default UserHome;

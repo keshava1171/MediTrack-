@@ -6,17 +6,14 @@ const {
     getPatients, getDoctors, assignDoctor, unassignDoctor, getAssignedDoctors
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
-
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const User = require('../models/User');
-
 const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, uploadDir);
@@ -27,7 +24,6 @@ const storage = multer.diskStorage({
         cb(null, `user-${req.user ? req.user.id : 'unknown'}-${uniqueSuffix}${ext}`);
     }
 });
-
 const upload = multer({
     storage: storage,
     limits: { fileSize: 50 * 1024 * 1024 },
@@ -35,14 +31,12 @@ const upload = multer({
         const filetypes = /jpeg|jpg|png|gif|webp|svg|bmp/;
         const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
         const mimetype = filetypes.test(file.mimetype);
-
         if (mimetype && extname) {
             return cb(null, true);
         }
         cb(null, true);
     }
 });
-
 const registerValidation = [
     check('name', 'Name is required').not().isEmpty(),
     check('email', 'Please include a valid email').isEmail(),
@@ -51,12 +45,10 @@ const registerValidation = [
         .isIn(['patient', 'doctor'])
         .withMessage('Role must be either patient or doctor'),
 ];
-
 const loginValidation = [
     check('email', 'Please include a valid email').isEmail(),
     check('password', 'Password is required').exists()
 ];
-
 router.post('/register', registerValidation, registerUser);
 router.post('/login', loginValidation, loginUser);
 router.post('/logout', logoutUser);
@@ -67,15 +59,12 @@ router.put('/profile-photo', protect, upload.single('photo'), async (req, res, n
         if (!req.file) {
             return res.status(400).json({ message: 'Please upload a file' });
         }
-
         const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         const userId = req.user.id || req.user._id;
-
         const user = await User.findById(userId);
         if (user) {
             user.photoUrl = fileUrl;
             const updatedUser = await user.save();
-
             res.json({
                 _id: updatedUser._id,
                 name: updatedUser.name,
@@ -101,5 +90,4 @@ router.post('/assign_doctor', protect, assignDoctor);
 router.post('/unassign-doctor', protect, unassignDoctor);
 router.post('/unassign_doctor', protect, unassignDoctor);
 router.get('/my-doctors', protect, getAssignedDoctors);
-
 module.exports = router;

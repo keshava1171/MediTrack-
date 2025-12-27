@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const reportSchema = new mongoose.Schema({
     patientName: { type: String, required: true },
     patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
@@ -13,13 +12,11 @@ const reportSchema = new mongoose.Schema({
     type: { type: String, default: 'File' }, 
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     doctor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
-
     status: {
         type: String,
         enum: ['Active', 'Flagged', 'Archived'],
         default: 'Active'
     },
-
     visibility: {
         type: String,
         enum: ['Private', 'Doctor'],
@@ -35,8 +32,6 @@ const reportSchema = new mongoose.Schema({
         action: { type: String }, 
         timestamp: { type: Date, default: Date.now }
     }],
-
     createdAt: { type: Date, default: Date.now }
 });
-
 module.exports = mongoose.model('Report', reportSchema);

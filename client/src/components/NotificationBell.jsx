@@ -3,21 +3,18 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { markAllAsRead } from '../features/alerts/alertSlice';
-
 const NotificationBell = () => {
     const { alerts, unreadCount } = useSelector((state) => state.alerts);
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
-
     const handleToggle = () => {
         if (!isOpen && unreadCount > 0) {
             dispatch(markAllAsRead());
         }
         setIsOpen(!isOpen);
     };
-
     const handleItemClick = (alert) => {
         setIsOpen(false);
         if (user.role === 'doctor' && alert.patient && (alert.patient._id || alert.patient)) {
@@ -27,7 +24,6 @@ const NotificationBell = () => {
             navigate('/health-dashboard');
         }
     };
-
     return (
         <div className="relative">
             <button
@@ -41,7 +37,6 @@ const NotificationBell = () => {
                     </span>
                 )}
             </button>
-
             {isOpen && (
                 <div className="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden transform origin-top-right transition-all animate-in fade-in zoom-in-95 duration-200">
                     <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
@@ -50,7 +45,6 @@ const NotificationBell = () => {
                             <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border shadow-sm">{alerts.length} Total</span>
                         )}
                     </div>
-
                     <div className="max-h-[400px] overflow-y-auto">
                         {alerts.length === 0 ? (
                             <div className="p-8 text-center text-gray-500">
@@ -104,5 +98,4 @@ const NotificationBell = () => {
         </div>
     );
 };
-
 export default NotificationBell;

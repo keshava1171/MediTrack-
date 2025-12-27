@@ -2,13 +2,10 @@ import React from 'react';
 import { X, Download, FileText, Image as ImageIcon, ExternalLink } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-
 const FilePreviewModal = ({ isOpen, onClose, fileUrl, fileName, fileType, useBlobDownload = false }) => {
     if (!isOpen) return null;
-
     const isImage = fileType?.startsWith('image') || fileName?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
     const isPdf = fileType === 'application/pdf' || fileName?.match(/\.pdf$/i);
-
     const handleDownload = async () => {
         if (!useBlobDownload) {
                         const link = document.createElement('a');
@@ -19,21 +16,18 @@ const FilePreviewModal = ({ isOpen, onClose, fileUrl, fileName, fileType, useBlo
             document.body.removeChild(link);
             return;
         }
-
                 try {
             toast.loading('Downloading...');
             const response = await axios.get(fileUrl, {
                 responseType: 'blob',
                 withCredentials: true
             });
-
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', fileName || 'download');
             document.body.appendChild(link);
             link.click();
-
             link.parentNode.removeChild(link);
             window.URL.revokeObjectURL(url);
             toast.dismiss();
@@ -50,12 +44,9 @@ const FilePreviewModal = ({ isOpen, onClose, fileUrl, fileName, fileType, useBlo
             document.body.removeChild(link);
         }
     };
-
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden relative" onClick={(e) => e.stopPropagation()}>
-
-                { }
                 <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
                     <div className="flex items-center space-x-3 overflow-hidden">
                         {isImage ? <ImageIcon className="text-blue-500" size={24} /> : <FileText className="text-blue-500" size={24} />}
@@ -79,8 +70,6 @@ const FilePreviewModal = ({ isOpen, onClose, fileUrl, fileName, fileType, useBlo
                         </button>
                     </div>
                 </div>
-
-                { }
                 <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center p-4">
                     {isImage ? (
                         <img
@@ -114,5 +103,4 @@ const FilePreviewModal = ({ isOpen, onClose, fileUrl, fileName, fileType, useBlo
         </div>
     );
 };
-
 export default FilePreviewModal;
