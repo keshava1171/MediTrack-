@@ -75,7 +75,7 @@ const downloadReport = async (req, res) => {
     try {
         const report = await Report.findById(req.params.id);
         if (!report) return res.status(404).json({ message: 'Report not found' });
-                const userId = req.user.id || req.user._id;
+        const userId = req.user.id || req.user._id;
         const isOwner = report.uploadedBy.toString() === userId.toString();
         const isAdmin = req.user.role === 'admin';
         let isAssignedDoctor = false;
@@ -100,9 +100,9 @@ const downloadReport = async (req, res) => {
 };
 const getReports = async (req, res) => {
     try {
-        let query = ;
+        let query = {};
         const { search, category } = req.query;
-                if (req.user.role === 'patient') {
+        if (req.user.role === 'patient') {
             query = {
                 $or: [
                     { uploadedBy: req.user.id },
@@ -112,7 +112,7 @@ const getReports = async (req, res) => {
         } else if (req.user.role === 'doctor') {
             const doctor = await User.findById(req.user.id);
             const assignedPatients = doctor.assignedPatients || [];
-                        query = {
+            query = {
                 $or: [
                     { uploadedBy: req.user.id },
                     { patientId: { $in: assignedPatients } }
@@ -203,7 +203,7 @@ const updateReport = async (req, res) => {
 const getAllAdminReports = async (req, res) => {
     try {
         const { search, status, type, role, startDate, endDate, sort } = req.query;
-        let query = ;
+        let query = {};
         if (search) {
             query.$or = [
                 { patientName: { $regex: search, $options: 'i' } },

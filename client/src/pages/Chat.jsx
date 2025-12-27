@@ -109,8 +109,8 @@ function Chat() {
                 setMessages(prev => prev.map(msg =>
                     msg._id === messageId ? { ...msg, isDeleted: true } : msg
                 ));
-            }
-            const handleRelationshipUpdate = () => ;
+            };
+
             socket.on('user_status_update', handleStatusUpdate);
             socket.on('receive_message', handleReceiveMessage);
             socket.on('message_updated', handleMessageUpdate);
@@ -119,6 +119,7 @@ function Chat() {
                 console.log('🔄 Relationship updated - refreshing contacts');
                 fetchUsers();
             });
+
             return () => {
                 socket.off('user_status_update', handleStatusUpdate);
                 socket.off('receive_message', handleReceiveMessage);
@@ -129,12 +130,14 @@ function Chat() {
         const cleanup = attachListeners();
         return cleanup;
     }, [user]);
+
     useEffect(() => {
         if (selectedUser) {
             fetchMessages(selectedUser._id);
             setUnreadCount(0);
         }
     }, [selectedUser]);
+
     const filteredUsers = useMemo(() => {
         let candidates = users;
         if (searchQuery) {
@@ -151,7 +154,8 @@ function Chat() {
         }
         return candidates;
     }, [users, userFilter, user.role, searchQuery]);
-    const sendMessage = (type = 'text', content = null, extraData = ) => {
+
+    const sendMessage = (type = 'text', content = null, extraData = {}) => {
         if (!selectedUser) return;
         if ((type === 'text' && !message.trim()) || (type !== 'text' && !content)) return;
         const senderId = user._id || user.id;

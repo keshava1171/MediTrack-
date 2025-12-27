@@ -33,7 +33,7 @@ function DoctorDashboard() {
             setPatients(prevPatients => prevPatients.map(p => {
                 if (p._id?.toString() === incomingPatientId?.toString()) {
                     const nextLastVitals = {
-                        ...(p.lastVitals || ),
+                        ...(p.lastVitals || {}),
                         status: data.status,
                         lastCheck: new Date(),
                     };

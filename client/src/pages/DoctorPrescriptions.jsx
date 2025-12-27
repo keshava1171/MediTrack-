@@ -31,9 +31,7 @@ function DoctorPrescriptions() {
         fetchPatients();
         fetchPrescriptions();
     }, [user, navigate]);
-    useEffect(() => {
-        if (selectedPatientId) 
-    }, [selectedPatientId]);
+
     const fetchPatients = async () => {
         try {
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/patients`, { withCredentials: true });

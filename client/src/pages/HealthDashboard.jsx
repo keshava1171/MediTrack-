@@ -39,7 +39,7 @@ function HealthDashboard() {
                 axios.get(`${import.meta.env.VITE_API_URL}/api/health/latest`, { withCredentials: true })
             ]);
             setReadings(historyRes.data);
-            let latestObj = ;
+            let latestObj = {};
             if (latestRes.data.length === 0 && historyRes.data.length > 0) {
                 historyRes.data.forEach(item => {
                     if (!latestObj[item.type] || new Date(item.timestamp) > new Date(latestObj[item.type].timestamp)) {
@@ -373,7 +373,7 @@ function HealthDashboard() {
                             <h2 className="text-lg font-bold text-gray-800">Alert History</h2>
                         </div>
                         <div className="p-6">
-                            <MyAlerts key={readings.length} /> 
+                            <MyAlerts key={readings.length} />
                         </div>
                     </div>
                 </div>

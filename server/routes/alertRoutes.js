@@ -4,7 +4,7 @@ const Alert = require('../models/Alert');
 const User = require('../models/User'); const { protect } = require('../middleware/authMiddleware');
 const asyncHandler = require('express-async-handler');
 router.get('/', protect, asyncHandler(async (req, res) => {
-    let query = ;
+    let query = {};
     if (req.user.role === 'patient') {
         query = { patient: req.user.id };
     } else if (req.user.role === 'doctor') {

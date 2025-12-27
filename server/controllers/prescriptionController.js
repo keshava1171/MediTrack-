@@ -29,13 +29,13 @@ const createPrescription = async (req, res) => {
 };
 const getPrescriptions = async (req, res) => {
     try {
-        let query = ;
+        let query = {};
         if (req.user.role === 'patient') {
             query = { patientId: req.user._id };
         } else if (req.user.role === 'doctor') {
             query = { doctorId: req.user._id };
         } else if (req.user.role === 'admin') {
-            query = ; 
+            query = {};
         } else {
             return res.status(403).json({ message: 'Unauthorized role' });
         }

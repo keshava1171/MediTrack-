@@ -36,7 +36,7 @@ app.use(session({
 connectMongo();
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:5173", "http://127.0.0.1:5173"],         methods: ["GET", "POST"],
+        origin: ["http://localhost:5173", "http://127.0.0.1:5173"], methods: ["GET", "POST"],
         credentials: true
     }
 });
@@ -46,7 +46,7 @@ const seedAdmin = require('./utils/adminSeeder');
 seedAdmin();
 const resetUserStatus = async () => {
     try {
-        await User.updateMany(, { isOnline: false });
+        await User.updateMany({}, { isOnline: false });
         console.log('✅ User statuses reset to offline');
     } catch (error) {
         console.error('❌ Failed to reset user statuses:', error);
@@ -157,7 +157,7 @@ io.on('connection', (socket) => {
                         io.to(pId).emit('message_updated', updatedMessage);
                     });
                 } else {
-                                        io.to('general_chat').emit('message_updated', updatedMessage);
+                    io.to('general_chat').emit('message_updated', updatedMessage);
                 }
             }
         } catch (err) {

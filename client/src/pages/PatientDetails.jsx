@@ -54,7 +54,7 @@ function PatientDetails() {
             const sortedHistory = res.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             setHealthHistory(sortedHistory);
             setCurrentPage(1);
-            const latest = ;
+            const latest = {};
             sortedHistory.forEach(item => {
                 if (!latest[item.type]) latest[item.type] = item;
             });

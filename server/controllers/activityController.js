@@ -1,5 +1,5 @@
 const ActivityLog = require('../models/ActivityLog');
-const Alert = require('../models/Alert'); 
+const Alert = require('../models/Alert');
 const User = require('../models/User');
 const getRecentActivities = async (req, res) => {
     try {
@@ -46,7 +46,7 @@ const createAlert = async (req, res) => {
 };
 const getAlerts = async (req, res) => {
     try {
-        let query = ;
+        let query = {};
         if (req.user.role === 'patient') {
             query.patient = req.user._id;
         }
@@ -55,11 +55,11 @@ const getAlerts = async (req, res) => {
             if (guardian && guardian.requestedPatientId) {
                 query.patient = guardian.requestedPatientId;
             } else {
-                return res.json([]); 
+                return res.json([]);
             }
         }
         if (req.user.role === 'doctor' || req.user.role === 'admin') {
-            query = ; 
+            query = {};
         }
         const alerts = await Alert.find(query)
             .sort({ timestamp: -1 })
